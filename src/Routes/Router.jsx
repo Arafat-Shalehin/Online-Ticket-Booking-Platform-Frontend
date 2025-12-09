@@ -4,6 +4,8 @@ import Error from "../Components/Common/Error";
 import App from "../App";
 import Login from "../Pages/Auth/Login";
 import Register from "../Pages/Auth/Register";
+import PrivateRoute from "./PrivateRoute";
+import AllTickets from "../Pages/Tickets/AllTickets";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +27,12 @@ const router = createBrowserRouter([
       {
         path: "/auth/register",
         Component: Register
+      },
+      {
+        path: "/all-tickets",
+        element: <PrivateRoute>
+          <AllTickets></AllTickets>
+        </PrivateRoute>
       },
     ],
   },
