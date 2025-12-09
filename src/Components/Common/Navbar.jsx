@@ -1,33 +1,39 @@
 import React, { useState } from "react";
 import { FaBusAlt, FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
+import useAuth from "../../Hooks/useAuth";
+import { Link } from "react-router";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const Navbar = () => {
-  // Simulated auth state – replace with your real auth logic
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { user, logoutUser } = useAuth();
 
-  const user = {
-    name: "John Doe",
-    avatarUrl: "https://i.pravatar.cc/150?img=3", // replace with your avatar source
-  };
-
-  const handleLogin = () => {
-    // navigate to login page or open modal
-    console.log("Login clicked");
-  };
-
-  const handleRegister = () => {
-    // navigate to register page or open modal
-    console.log("Register clicked");
-  };
-
-  const handleLogout = () => {
-    // perform logout logic
-    console.log("Logout clicked");
-    setIsAuthenticated(false);
-    setUserMenuOpen(false);
-    setMobileMenuOpen(false);
+  const handleLogOut = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be log out from this website!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Log Out!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logoutUser()
+          .then((result) => {
+            console.log(result);
+            toast.success("LogOut Successful.");
+            setMobileMenuOpen(false);
+            setUserMenuOpen(false);
+          })
+          .catch((error) => {
+            console.log(error);
+            toast.error("LogOut Failed. Please try again later.");
+          });
+      }
+    });
   };
 
   const closeMenus = () => {
@@ -36,7 +42,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm sticky">
+    <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left: Logo */}
@@ -57,41 +63,38 @@ const Navbar = () => {
             >
               Home
             </a>
-
-            {isAuthenticated && (
-              <>
-                <a
-                  href="/tickets"
-                  className="text-sm font-medium text-gray-700 hover:text-indigo-600"
-                >
-                  All Tickets
-                </a>
-                <a
-                  href="/dashboard"
-                  className="text-sm font-medium text-gray-700 hover:text-indigo-600"
-                >
-                  Dashboard
-                </a>
-              </>
-            )}
+            <a
+              href="/all-tickets"
+              className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            >
+              All Tickets
+            </a>
+            <a
+              href="/dashboard"
+              className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            >
+              Dashboard
+            </a>
           </div>
 
           {/* Right: Desktop user / auth actions */}
           <div className="hidden md:flex md:items-center md:space-x-4 relative">
-            {!isAuthenticated ? (
+            {!user ? (
               <>
-                <button
-                  onClick={handleLogin}
-                  className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+                <Link
+                  to="/auth/login"
+                  // onClick={handleLogin}
+                  className="text-sm font-medium text-gray-700 hover:bg-gray-400/50 hover:text-white hover:font-bold transition-colors duration-150 border rounded px-4 py-1 cursor-pointer"
                 >
                   Login
-                </button>
-                <button
-                  onClick={handleRegister}
-                  className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                </Link>
+                <Link
+                  to="/auth/register"
+                  // onClick={handleRegister}
+                  className="text-white px-4 py-1 border rounded bg-indigo-500 cursor-pointer hover:scale-105 transition-all duration-300"
                 >
                   Register
-                </button>
+                </Link>
               </>
             ) : (
               <div className="relative">
@@ -100,12 +103,12 @@ const Navbar = () => {
                   className="flex items-center rounded-full border border-transparent px-2 py-1 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   <img
-                    src={user.avatarUrl}
+                    src={user?.photoURL}
                     alt="User avatar"
                     className="h-8 w-8 rounded-full object-cover"
                   />
                   <span className="ml-2 text-sm font-medium text-gray-700">
-                    {user.name}
+                    {user?.displayName}
                   </span>
                   <FaChevronDown className="ml-1 h-3 w-3 text-gray-500" />
                 </button>
@@ -113,7 +116,9 @@ const Navbar = () => {
                 {/* User dropdown (desktop) */}
                 {userMenuOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-40 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+                    className="absolute right-0 mt-2 w-40 
+                    rounded-md bg-white py-1 shadow-lg 
+                    ring-1 ring-black ring-opacity-5 text-center"
                     onMouseLeave={() => setUserMenuOpen(false)}
                   >
                     <a
@@ -124,8 +129,10 @@ const Navbar = () => {
                       My Profile
                     </a>
                     <button
-                      onClick={handleLogout}
-                      className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={handleLogOut}
+                      className="border rounded px-4 py-2 
+                      text-left text-sm text-gray-700 
+                      hover:bg-gray-50 mt-2"
                     >
                       Logout
                     </button>
@@ -162,43 +169,35 @@ const Navbar = () => {
             <a
               href="/"
               className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
-              onClick={closeMenus}
             >
               Home
             </a>
-
-            {isAuthenticated && (
-              <>
-                <a
-                  href="/tickets"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
-                  onClick={closeMenus}
-                >
-                  All Tickets
-                </a>
-                <a
-                  href="/dashboard"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
-                  onClick={closeMenus}
-                >
-                  Dashboard
-                </a>
-              </>
-            )}
+            <a
+              href="/tickets"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+            >
+              All Tickets
+            </a>
+            <a
+              href="/dashboard"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Dashboard
+            </a>
           </div>
 
           <div className="border-t border-gray-200 pt-4 pb-3">
-            {isAuthenticated ? (
+            {user ? (
               <>
                 <div className="flex items-center px-4">
                   <img
                     className="h-10 w-10 rounded-full object-cover"
-                    src={user.avatarUrl}
+                    src={user?.photoURL}
                     alt="User avatar"
                   />
                   <div className="ml-3">
                     <div className="text-base font-medium text-gray-800">
-                      {user.name}
+                      {user?.displayName}
                     </div>
                   </div>
                 </div>
@@ -211,7 +210,7 @@ const Navbar = () => {
                     My Profile
                   </a>
                   <button
-                    onClick={handleLogout}
+                    onClick={handleLogOut}
                     className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-100"
                   >
                     Logout
@@ -220,18 +219,18 @@ const Navbar = () => {
               </>
             ) : (
               <div className="space-y-1 px-2">
-                <button
-                  onClick={handleLogin}
-                  className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-100"
+                <Link
+                  to="/auth/login"
+                  className="block w-[20%] border rounded-md px-3 py-2 text-center text-base font-medium text-gray-700 hover:bg-gray-100"
                 >
                   Login
-                </button>
-                <button
-                  onClick={handleRegister}
-                  className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                </Link>
+                <Link
+                  to="/auth/register"
+                  className="block w-[20%] rounded-md px-3 py-2 text-center text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                 >
                   Register
-                </button>
+                </Link>
               </div>
             )}
           </div>

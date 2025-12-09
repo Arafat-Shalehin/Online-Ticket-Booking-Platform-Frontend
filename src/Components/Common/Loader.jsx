@@ -7,8 +7,8 @@ const Loader = ({
   progress = 0
 }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-500">
-      <div className="max-w-sm w-full mx-4 rounded-2xl bg-slate-900/70 border border-slate-800 px-8 py-10 shadow-xl backdrop-blur">
+    <div className="min-h-screen flex items-center justify-center text-slate-500">
+      <div className="max-w-sm w-full mx-4 rounded-2xl bg-slate-900/90 border border-slate-800 px-8 py-10 shadow-xl backdrop-blur">
         {/* Logo / brand */}
         <div className="flex items-center justify-center mb-6">
           <FaBusAlt className="h-7 w-7 text-indigo-400 mr-2" />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "../Context/AuthContext";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -59,7 +59,7 @@ const AuthProvider = ({ children }) => {
     logoutUser,
   };
 
-  return <AuthContext value={authInfo}>{children}</AuthContext>;
+  return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

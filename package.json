@@ -20,6 +20,7 @@
     "react-router": "^7.10.1",
     "react-router-dom": "^7.10.1",
     "react-toastify": "^11.0.5",
+    "sweetalert2": "^11.26.4",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {

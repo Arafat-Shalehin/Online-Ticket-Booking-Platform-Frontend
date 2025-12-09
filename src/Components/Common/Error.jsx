@@ -43,7 +43,7 @@ const Error = ({
           <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
             <a
               href="/"
-              className="inline-flex justify-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-black shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="inline-flex justify-center rounded-md bg-white px-5 py-2.5 text-sm font-medium text-black shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Go back home
             </a>

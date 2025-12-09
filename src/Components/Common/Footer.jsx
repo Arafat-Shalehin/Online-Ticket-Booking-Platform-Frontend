@@ -22,7 +22,7 @@ const Footer = () => {
 
           {/* Column 2: Quick Links */}
           <div className="lg:ml-17">
-            <h3 className="text-black text-sm font-semibold uppercase tracking-wide mb-4">
+            <h3 className="text-white text-sm font-semibold uppercase tracking-wide mb-4">
               Quick Links
             </h3>
             <ul className="space-y-2 text-sm">
@@ -51,7 +51,7 @@ const Footer = () => {
 
           {/* Column 3: Contact Info */}
           <div>
-            <h3 className="text-black text-sm font-semibold uppercase tracking-wide mb-4">
+            <h3 className="text-white text-sm font-semibold uppercase tracking-wide mb-4">
               Contact Info
             </h3>
             <ul className="space-y-3 text-sm">
@@ -89,7 +89,7 @@ const Footer = () => {
 
           {/* Column 4: Payment Methods */}
           <div>
-            <h3 className="text-black text-sm font-semibold uppercase tracking-wide mb-4">
+            <h3 className="text-white text-sm font-semibold uppercase tracking-wide mb-4">
               Payment Methods
             </h3>
             <p className="text-sm text-gray-400 mb-4">
