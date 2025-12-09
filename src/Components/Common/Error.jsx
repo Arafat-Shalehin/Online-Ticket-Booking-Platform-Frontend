@@ -62,13 +62,6 @@ const Error = ({
           </div>
         </div>
       </main>
-
-      {/* Optional bottom bar (matches your project branding) */}
-      <footer className="border-t border-slate-200 py-3">
-        <p className="text-center text-xs text-slate-500">
-          © 2025 TicketBari. All rights reserved.
-        </p>
-      </footer>
     </div>
   );
 };
