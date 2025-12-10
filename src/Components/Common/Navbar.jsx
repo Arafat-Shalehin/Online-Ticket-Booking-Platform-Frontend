@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaBusAlt, FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
 import useAuth from "../../Hooks/useAuth";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -57,24 +57,27 @@ const Navbar = () => {
 
           {/* Center: Desktop menu */}
           <div className="hidden md:flex md:items-center md:space-x-6">
-            <a
-              href="/"
-              className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            <NavLink
+              to="/"
+              className={({isActive}) => isActive ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold" : "text-sm font-medium text-gray-700 hover:text-indigo-600"}
+              
             >
               Home
-            </a>
-            <a
-              href="/all-tickets"
-              className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            </NavLink>
+            <NavLink
+              to="/all-tickets"
+              className={({isActive}) => isActive ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold" : "text-sm font-medium text-gray-700 hover:text-indigo-600"}
+              
             >
               All Tickets
-            </a>
-            <a
-              href="/dashboard"
-              className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            </NavLink>
+            <NavLink
+              to="/dashboard"
+              className={({isActive}) => isActive ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold" : "text-sm font-medium text-gray-700 hover:text-indigo-600"}
+              
             >
               Dashboard
-            </a>
+            </NavLink>
           </div>
 
           {/* Right: Desktop user / auth actions */}
@@ -122,7 +125,7 @@ const Navbar = () => {
                     onMouseLeave={() => setUserMenuOpen(false)}
                   >
                     <a
-                      href="/profile"
+                      to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={closeMenus}
                     >
@@ -166,24 +169,27 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden" id="mobile-menu">
           <div className="space-y-1 px-2 pt-2 pb-3">
-            <a
-              href="/"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+            <NavLink
+              to="/"
+              className={({isActive}) => isActive ? "block w-[20%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b" : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"}
+              
             >
               Home
-            </a>
-            <a
-              href="/tickets"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+            </NavLink>
+            <NavLink
+              to="/all-tickets"
+              className={({isActive}) => isActive ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b" : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"}
+              
             >
               All Tickets
-            </a>
-            <a
-              href="/dashboard"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+            </NavLink>
+            <NavLink
+              to="/dashboard"
+              className={({isActive}) => isActive ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b" : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"}
+              
             >
               Dashboard
-            </a>
+            </NavLink>
           </div>
 
           <div className="border-t border-gray-200 pt-4 pb-3">

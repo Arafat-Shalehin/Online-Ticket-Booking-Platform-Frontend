@@ -48,7 +48,7 @@ const Error = ({
               Go back home
             </a>
             <a
-              href="/tickets"
+              href="/all-tickets"
               className="inline-flex justify-center rounded-md border border-slate-300 bg-white shadow-sm px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Browse all tickets

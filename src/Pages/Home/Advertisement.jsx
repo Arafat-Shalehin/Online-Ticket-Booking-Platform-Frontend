@@ -41,7 +41,7 @@ const Advertisement = () => {
       </p>
     );
   return (
-    <section className="bg-[#E3E3E3] py-12 sm:py-16 mt-5">
+    <section className="bg-[#E3E3E3] py-12 sm:py-10 mt-5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
@@ -50,7 +50,7 @@ const Advertisement = () => {
               Featured Tickets
             </h2>
             <p className="mt-1 max-w-xl text-sm text-slate-500">
-              Exactly 6 curated offers, hand‑picked by our travel experts for
+              Exactly {tickets.length} curated offers, hand‑picked by our travel experts for
               this week.
             </p>
           </div>

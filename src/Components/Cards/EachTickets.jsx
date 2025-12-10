@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import {Link} from "react-router";
+import { RiArrowRightSLine } from "react-icons/ri";
 
 const EachTickets = ({ ticket, index }) => {
   return (
@@ -88,24 +89,11 @@ const EachTickets = ({ ticket, index }) => {
           </span>
 
           <Link
-            to=""
+            to={`/ticket/${ticket._id}`}
             className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           >
-            See details
-            <svg
-              className="h-3.5 w-3.5"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M7 5l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <span>See details</span>
+            <RiArrowRightSLine size={20} />
           </Link>
         </div>
       </div>

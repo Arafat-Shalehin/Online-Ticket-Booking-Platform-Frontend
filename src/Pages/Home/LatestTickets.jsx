@@ -52,7 +52,7 @@ const LatestTickets = () => {
               Latest Tickets
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              6 more newly added tickets for your comfort
+              {tickets.length} more newly added tickets for your comfort
             </p>
           </div>
         </div>
