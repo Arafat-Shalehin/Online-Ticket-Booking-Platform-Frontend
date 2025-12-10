@@ -1,0 +1,212 @@
+[
+  {
+    "id": "pp-001",
+    "name": "Cox's Bazar Sea Beach",
+    "location": "Cox's Bazar, Chattogram Division",
+    "description": "A long scenic beachfront known for sandy shores and wide ocean views.",
+    "heroImage": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+    "gallery": [
+      "https://images.unsplash.com/photo-1493558103817-58b2924bce98",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+    ],
+    "rating": 4.8,
+    "tags": ["Beach", "Sea", "Nature"],
+    "bestTimeToVisit": "November–February"
+  },
+  {
+    "id": "pp-002",
+    "name": "Sajek Valley",
+    "location": "Rangamati, Chattogram Hill Tracts",
+    "description": "Cloud-covered hills surrounded by dense green landscapes.",
+    "heroImage": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+    "gallery": [
+      "https://images.unsplash.com/photo-1524492412937-4961d66aa114",
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
+    ],
+    "rating": 4.7,
+    "tags": ["Hills", "Clouds", "Nature"],
+    "bestTimeToVisit": "September–April"
+  },
+  {
+    "id": "pp-003",
+    "name": "Saint Martin's Island",
+    "location": "Teknaf, Cox's Bazar",
+    "description": "A small tropical island with clear water and coral-filled shores.",
+    "heroImage": "https://images.unsplash.com/photo-1500375592092-40eb2168fd21",
+    "gallery": [
+      "https://images.unsplash.com/photo-1520975918319-076b4f1b3a47",
+      "https://images.unsplash.com/photo-1500375592092-40eb2168fd21"
+    ],
+    "rating": 4.6,
+    "tags": ["Island", "Coral", "Beach"],
+    "bestTimeToVisit": "December–March"
+  },
+  {
+    "id": "pp-004",
+    "name": "Sundarbans Mangrove Forest",
+    "location": "Khulna Division",
+    "description": "A vast mangrove ecosystem rich in wildlife and river channels.",
+    "heroImage": "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+    "gallery": [
+      "https://images.unsplash.com/photo-1472377713115-ce5628f98f52",
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
+    ],
+    "rating": 4.5,
+    "tags": ["Forest", "Wildlife", "Nature"],
+    "bestTimeToVisit": "October–March"
+  },
+  {
+    "id": "pp-005",
+    "name": "Jaflong",
+    "location": "Sylhet Division",
+    "description": "A popular riverfront destination with stone beds and rolling hills.",
+    "heroImage": "https://images.unsplash.com/photo-1433086966358-54859d0ed716",
+    "gallery": [
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+      "https://images.unsplash.com/photo-1433086966358-54859d0ed716"
+    ],
+    "rating": 4.4,
+    "tags": ["River", "Stones", "Nature"],
+    "bestTimeToVisit": "October–February"
+  },
+  {
+    "id": "pp-006",
+    "name": "Ratargul Swamp Forest",
+    "location": "Sylhet Division",
+    "description": "A freshwater swamp forest famous for boat rides through tall trees.",
+    "heroImage": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+    "gallery": [
+      "https://images.unsplash.com/photo-1534081333815-ae5019106622",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+    ],
+    "rating": 4.5,
+    "tags": ["Forest", "Boat Ride", "Nature"],
+    "bestTimeToVisit": "July–September"
+  },
+  {
+    "id": "pp-007",
+    "name": "Bandarban Golden Temple",
+    "location": "Bandarban, Chattogram Hill Tracts",
+    "description": "A hilltop Buddhist temple surrounded by panoramic mountain scenery.",
+    "heroImage": "https://www.travelmate.com.bd/wp-content/uploads/2021/02/Buddha-Dhatu-Jadi-Golden-Temple.jpg",
+    "gallery": [
+      "https://images.unsplash.com/photo-1524499982521-1ffd58dd89ea",
+      "https://images.unsplash.com/photo-1494475673543-6a6a27143b8f"
+    ],
+    "rating": 4.6,
+    "tags": ["Temple", "Hills", "Culture"],
+    "bestTimeToVisit": "November–February"
+  },
+  {
+    "id": "pp-008",
+    "name": "Kuakata Sea Beach",
+    "location": "Patuakhali, Barishal Division",
+    "description": "A rare sea beach where both sunrise and sunset can be viewed.",
+    "heroImage": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+    "gallery": [
+      "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+    ],
+    "rating": 4.3,
+    "tags": ["Beach", "Sunrise", "Sunset"],
+    "bestTimeToVisit": "October–March"
+  },
+  {
+    "id": "pp-009",
+    "name": "Panthumai Waterfall",
+    "location": "Sylhet Division",
+    "description": "A picturesque waterfall surrounded by green hills and calm rivers.",
+    "heroImage": "https://www.touristplaces.com.bd/images/pp/7/p141312.jpg",
+    "gallery": [
+      "https://images.unsplash.com/photo-1494475673543-6a6a27143b8f",
+      "https://images.unsplash.com/photo-1503437313881-503a91226402"
+    ],
+    "rating": 4.4,
+    "tags": ["Waterfall", "Nature"],
+    "bestTimeToVisit": "July–October"
+  },
+  {
+    "id": "pp-010",
+    "name": "Boga Lake",
+    "location": "Bandarban",
+    "description": "A high-altitude lake surrounded by hills and serene wilderness.",
+    "heroImage": "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+    "gallery": [
+      "https://images.unsplash.com/photo-1534081333815-ae5019106622",
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
+    ],
+    "rating": 4.7,
+    "tags": ["Lake", "Hills", "Camping"],
+    "bestTimeToVisit": "October–March"
+  },
+  {
+    "id": "pp-011",
+    "name": "Kaptai Lake",
+    "location": "Rangamati",
+    "description": "A large artificial lake known for its calm water and boat tours.",
+    "heroImage": "https://images.unsplash.com/photo-1493558103817-58b2924bce98",
+    "gallery": [
+      "https://images.unsplash.com/photo-1520975918319-076b4f1b3a47",
+      "https://images.unsplash.com/photo-1493558103817-58b2924bce98"
+    ],
+    "rating": 4.5,
+    "tags": ["Lake", "Boat Ride", "Nature"],
+    "bestTimeToVisit": "November–February"
+  },
+  {
+    "id": "pp-012",
+    "name": "Sonargaon Folk Art Village",
+    "location": "Narayanganj, Dhaka Division",
+    "description": "A cultural heritage site presenting traditional crafts and historic buildings.",
+    "heroImage": "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+    "gallery": [
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e"
+    ],
+    "rating": 4.3,
+    "tags": ["Culture", "History"],
+    "bestTimeToVisit": "November–February"
+  },
+  {
+    "id": "pp-013",
+    "name": "Tanguar Haor",
+    "location": "Sunamganj, Sylhet Division",
+    "description": "A large wetland ecosystem known for boat trips and migratory birds.",
+    "heroImage": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+    "gallery": [
+      "https://images.unsplash.com/photo-1534081333815-ae5019106622",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+    ],
+    "rating": 4.6,
+    "tags": ["Haor", "Boat Ride", "Nature"],
+    "bestTimeToVisit": "June–September"
+  },
+  {
+    "id": "pp-014",
+    "name": "Paharpur Buddhist Monastery",
+    "location": "Naogaon District",
+    "description": "A historic archaeological site showcasing ancient Buddhist architecture.",
+    "heroImage": "https://whc.unesco.org/uploads/thumbs/site_0322_0013-1200-630-20131008165904.jpg",
+    "gallery": [
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+      "https://images.unsplash.com/photo-1524499982521-1ffd58dd89ea"
+    ],
+    "rating": 4.4,
+    "tags": ["History", "Archaeology", "Culture"],
+    "bestTimeToVisit": "November–February"
+  },
+  {
+    "id": "pp-015",
+    "name": "Patenga Beach",
+    "location": "Chattogram",
+    "description": "A popular urban beach destination with a scenic coastal walkway.",
+    "heroImage": "https://www.travelmate.com.bd/wp-content/uploads/2019/08/patenga-sea-beach-2.jpg",
+    "gallery": [
+      "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
+      "https://images.unsplash.com/photo-1493558103817-58b2924bce98"
+    ],
+    "rating": 4.2,
+    "tags": ["Beach", "Urban", "Sea"],
+    "bestTimeToVisit": "October–March"
+  }
+]
