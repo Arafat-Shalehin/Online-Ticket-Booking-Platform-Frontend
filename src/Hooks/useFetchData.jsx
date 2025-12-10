@@ -8,7 +8,7 @@ const useFetchData = (queryKey, url, options = {}) => {
     queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
     queryFn: async () => {
       const res = await axiosSecure.get(url);
-      console.log(res.data);
+      // console.log(res.data);
       return res.data;
     },
     ...options,

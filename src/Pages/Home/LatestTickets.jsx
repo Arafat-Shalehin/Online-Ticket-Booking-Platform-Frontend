@@ -7,7 +7,7 @@ import Loader from "../../Components/Common/Loader";
 
 const LatestTickets = () => {
   const { data: tickets, isLoading, isError } = useLatestTickets();
-  console.log(tickets);
+  // console.log(tickets);
 
   // Loader progress code
   const [progress, setProgress] = useState(0);

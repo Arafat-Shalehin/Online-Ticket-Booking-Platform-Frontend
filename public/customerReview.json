@@ -1,0 +1,167 @@
+[
+  {
+    "id": "r1",
+    "name": "Hasan Mahmud",
+    "avatar": "https://randomuser.me/api/portraits/men/12.jpg",
+    "rating": 4.8,
+    "review": "Very smooth booking experience. The bus details were accurate and seat selection was easy.",
+    "tripType": "Bus",
+    "route": "Dhaka → Chittagong",
+    "createdAt": "2025-12-02T11:23:00Z",
+    "verified": true
+  },
+  {
+    "id": "r2",
+    "name": "Nusrat Jahan",
+    "avatar": "https://randomuser.me/api/portraits/women/44.jpg",
+    "rating": 5.0,
+    "review": "Loved the UI and the quick confirmation messages. Highly recommended!",
+    "tripType": "Train",
+    "route": "Dhaka → Sylhet",
+    "createdAt": "2025-11-29T09:14:00Z",
+    "verified": true
+  },
+  {
+    "id": "r3",
+    "name": "Shariful Karim",
+    "avatar": "https://randomuser.me/api/portraits/men/20.jpg",
+    "rating": 4.5,
+    "review": "Tickets were cheaper than other platforms, and the process was seamless.",
+    "tripType": "Bus",
+    "route": "Rajshahi → Dhaka",
+    "createdAt": "2025-12-01T15:40:00Z",
+    "verified": true
+  },
+  {
+    "id": "r4",
+    "name": "Taslima Akter",
+    "avatar": "https://randomuser.me/api/portraits/women/18.jpg",
+    "rating": 4.2,
+    "review": "Customer support responded quickly when I needed help. Great service.",
+    "tripType": "Launch",
+    "route": "Barishal → Dhaka",
+    "createdAt": "2025-11-25T18:50:00Z",
+    "verified": true
+  },
+  {
+    "id": "r5",
+    "name": "Sabbir Ahmed",
+    "avatar": "https://randomuser.me/api/portraits/men/5.jpg",
+    "rating": 4.9,
+    "review": "Instant SMS confirmation was very helpful. Will definitely book again.",
+    "tripType": "Bus",
+    "route": "Khulna → Dhaka",
+    "createdAt": "2025-12-03T07:10:00Z",
+    "verified": true
+  },
+  {
+    "id": "r6",
+    "name": "Rima Chowdhury",
+    "avatar": "https://randomuser.me/api/portraits/women/50.jpg",
+    "rating": 4.7,
+    "review": "Loved the clean interface. Everything was easy to understand.",
+    "tripType": "Train",
+    "route": "Sylhet → Dhaka",
+    "createdAt": "2025-11-30T10:30:00Z",
+    "verified": true
+  },
+  {
+    "id": "r7",
+    "name": "Jahidul Islam",
+    "avatar": "https://randomuser.me/api/portraits/men/31.jpg",
+    "rating": 4.4,
+    "review": "Good platform, but would love to see more airline options.",
+    "tripType": "Air",
+    "route": "Dhaka → Cox's Bazar",
+    "createdAt": "2025-12-04T12:20:00Z",
+    "verified": true
+  },
+  {
+    "id": "r8",
+    "name": "Maliha Rahman",
+    "avatar": "https://randomuser.me/api/portraits/women/67.jpg",
+    "rating": 5.0,
+    "review": "Super fast and convenient. Found seats even during rush season.",
+    "tripType": "Bus",
+    "route": "Dhaka → Rangpur",
+    "createdAt": "2025-12-01T09:15:00Z",
+    "verified": true
+  },
+  {
+    "id": "r9",
+    "name": "Moin Khan",
+    "avatar": "https://randomuser.me/api/portraits/men/38.jpg",
+    "rating": 4.6,
+    "review": "Accurate timing details helped a lot. Overall excellent service.",
+    "tripType": "Bus",
+    "route": "Chittagong → Dhaka",
+    "createdAt": "2025-11-27T20:55:00Z",
+    "verified": true
+  },
+  {
+    "id": "r10",
+    "name": "Farzana Yasmin",
+    "avatar": "https://randomuser.me/api/portraits/women/72.jpg",
+    "rating": 4.3,
+    "review": "Everything worked fine, but the loading time could be a bit faster.",
+    "tripType": "Train",
+    "route": "Dhaka → Rajshahi",
+    "createdAt": "2025-11-26T14:05:00Z",
+    "verified": true
+  },
+  {
+    "id": "r11",
+    "name": "Nafis Chowdhury",
+    "avatar": "https://randomuser.me/api/portraits/men/11.jpg",
+    "rating": 4.8,
+    "review": "Payment was secure and quick. I trust this platform.",
+    "tripType": "Air",
+    "route": "Dhaka → Sylhet",
+    "createdAt": "2025-12-03T16:34:00Z",
+    "verified": true
+  },
+  {
+    "id": "r12",
+    "name": "Sumi Akter",
+    "avatar": "https://randomuser.me/api/portraits/women/69.jpg",
+    "rating": 4.5,
+    "review": "Good experience overall. Would love more promo codes.",
+    "tripType": "Bus",
+    "route": "Dhaka → Comilla",
+    "createdAt": "2025-12-02T19:40:00Z",
+    "verified": true
+  },
+  {
+    "id": "r13",
+    "name": "Aminul Hasan",
+    "avatar": "https://randomuser.me/api/portraits/men/47.jpg",
+    "rating": 4.9,
+    "review": "Seat layout and details were very helpful for choosing the best seat.",
+    "tripType": "Bus",
+    "route": "Bogura → Dhaka",
+    "createdAt": "2025-12-04T08:18:00Z",
+    "verified": true
+  },
+  {
+    "id": "r14",
+    "name": "Samia Ahmed",
+    "avatar": "https://randomuser.me/api/portraits/women/59.jpg",
+    "rating": 4.6,
+    "review": "The reminders and notifications were on point. Very convenient.",
+    "tripType": "Train",
+    "route": "Dhaka → Khulna",
+    "createdAt": "2025-11-29T17:45:00Z",
+    "verified": true
+  },
+  {
+    "id": "r15",
+    "name": "Rashed Hossain",
+    "avatar": "https://randomuser.me/api/portraits/men/74.jpg",
+    "rating": 4.2,
+    "review": "Decent service. Had a minor issue with payment but customer support fixed it.",
+    "tripType": "Bus",
+    "route": "Cox's Bazar → Dhaka",
+    "createdAt": "2025-11-28T13:30:00Z",
+    "verified": true
+  }
+]
