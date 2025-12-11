@@ -1,31 +1,33 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "../../Hooks/useAuth";
+import useCreateUser from "../../QueryOptions/createUser";
+import Loader from "../../Components/Common/Loader";
 
 const Login = () => {
-  const { signInUser, googleLogin } = useAuth();
+  const { signInUser, googleLogin, loading, setLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const createUser = useCreateUser();
+  const [progress, setProgress] = useState(0);
 
-  // If user was redirected from a protected route, go back there after login
   const from = location.state?.from?.pathname || "/";
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError,
   } = useForm();
 
   // Handle Email/Password Login
   const onSubmit = async (data) => {
     try {
+      setLoading(true);
       const result = await signInUser(data.email, data.password);
-
-      console.log(result.user);
-
+      setLoading(false);
+      // console.log(result.user.email);
       toast.success("Logged in successfully");
       navigate(from, { replace: true });
     } catch (error) {
@@ -44,9 +46,20 @@ const Login = () => {
   // Handle Google Login
   const handleGoogleSignIn = async () => {
     try {
+      setLoading(true);
       const result = await googleLogin();
+      const firebaseUser = result.user;
 
-      console.log(result.user);
+      const userProfile = {
+        name: firebaseUser.displayName,
+        email: firebaseUser.email,
+        photoURL: firebaseUser.photoURL,
+      };
+
+      const userGoogleInfo = await createUser(userProfile);
+      console.log(userGoogleInfo);
+
+      setLoading(false);
 
       toast.success("Google Login Successful.");
       navigate(from, { replace: true });
@@ -55,6 +68,32 @@ const Login = () => {
       toast.error("Google Login Failed, Please Try again later.");
     }
   };
+
+  // Loader Logic
+  useEffect(() => {
+    if (!loading) return;
+
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + 5;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [loading]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center bg-white">
+        <Loader
+          message="Login is on process..."
+          subMessage="Taking to your desire route..."
+          progress={progress}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">

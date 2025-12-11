@@ -1,15 +1,26 @@
 // src/pages/Register.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "../../Hooks/useAuth";
+import useCreateUser from "../../QueryOptions/createUser";
+import Loader from "../../Components/Common/Loader";
 
 const Register = () => {
-  const { registerUser, googleLogin, updateUser } = useAuth();
+  const {
+    registerUser,
+    googleLogin,
+    updateUser,
+    setIsRegistering,
+    loading,
+    setLoading,
+  } = useAuth();
+  const createUser = useCreateUser();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+  const [progress, setProgress] = useState(0);
 
   const {
     register,
@@ -19,19 +30,41 @@ const Register = () => {
     reset,
   } = useForm();
 
+  // Loader Logic
+  useEffect(() => {
+    if (!loading) return;
+
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + 5;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [loading]);
+
   const onSubmit = async (data) => {
     try {
-      // Create user with email & password
-      const result = await registerUser(data.email, data.password);
+      setLoading(true);
+      setIsRegistering(true);
 
-      // Build profile update payload
       const userProfile = {
-        displayName: data.name,
-        photoURL: data.photoUrl, // FIXED: correct field
+        name: data.name,
+        email: data.email,
+        photoURL: data.photoUrl,
       };
+
+      const userAllInfo = await createUser(userProfile);
+
+      const result = await registerUser(data.email, data.password);
 
       // Update user profile in Firebase
       await updateUser(userProfile);
+
+      console.log({ userAllInfo, result });
+      setLoading(false);
+      setIsRegistering(false);
 
       toast.success("Registered successfully");
       reset();
@@ -59,8 +92,18 @@ const Register = () => {
   const handleGoogleSignIn = async () => {
     try {
       const result = await googleLogin();
+      const firebaseUser = result.user;
 
-      console.log(result.user);
+      const userProfile = {
+        name: firebaseUser.displayName,
+        email: firebaseUser.email,
+        photoURL: firebaseUser.photoURL,
+      };
+
+      const userGoogleInfo = await createUser(userProfile);
+      console.log(userGoogleInfo);
+      await updateUser(userProfile);
+      // console.log(result.user);
 
       toast.success("Google Registration Successful.");
       navigate(from, { replace: true });
@@ -69,6 +112,18 @@ const Register = () => {
       toast.error("Google Registration Failed, Please Try again later.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center bg-white">
+        <Loader
+          message="Registration is On going..."
+          subMessage="Taking to your desire route..."
+          progress={progress}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">

@@ -100,7 +100,7 @@ const Navbar = () => {
                 </Link>
               </>
             ) : (
-              <div className="relative">
+              <div className="relative z-10">
                 <button
                   onClick={() => setUserMenuOpen((prev) => !prev)}
                   className="flex items-center rounded-full border border-transparent px-2 py-1 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
