@@ -1,44 +1,50 @@
-import { createBrowserRouter } from "react-router";
-import MainLayout from "../Components/Layout/MainLayout";
+import { createBrowserRouter } from "react-router-dom";
+import MainLayout from "../Layouts/MainLayout";
+import DashboardLayout from "../Layouts/DashboardLayout";
 import Error from "../Components/Common/Error";
+
+// Pages
 import App from "../App";
 import Login from "../Pages/Auth/Login";
 import Register from "../Pages/Auth/Register";
-import PrivateRoute from "./PrivateRoute";
 import AllTickets from "../Pages/Tickets/AllTickets";
 import TicketDetails from "../Pages/Tickets/TicketDetails";
-import DashboardLayout from "../Components/Layout/DashboardLayout";
+
+// User Dashboard Pages
 import UserProfile from "../Pages/Dashboard/User/UserProfile";
 import MyBookedTickets from "../Pages/Dashboard/User/MyBookedTickets";
 import TransactionHistory from "../Pages/Dashboard/User/TransactionHistory";
-import UserRoute from "../Layouts/UserRoute";
+
+// Route Wrappers
+import PrivateRoute from "./PrivateRoute";
+import ProtectedRoute from "./ProtectedRoute";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    Component: MainLayout,
+    element: <MainLayout />,
     children: [
       {
-        path: "*",
-        Component: Error,
+        index: true,
+        element: <App />,
       },
       {
-        index: true,
-        Component: App,
+        path: "*",
+        element: <Error />,
       },
       {
         path: "/auth/login",
-        Component: Login,
+        element: <Login />,
       },
       {
         path: "/auth/register",
-        Component: Register,
+        element: <Register />,
       },
       {
         path: "/all-tickets",
         element: (
           <PrivateRoute>
-            <AllTickets></AllTickets>
+            <AllTickets />
           </PrivateRoute>
         ),
       },
@@ -46,42 +52,53 @@ const router = createBrowserRouter([
         path: "/ticket/:id",
         element: (
           <PrivateRoute>
-            <TicketDetails></TicketDetails>
+            <TicketDetails />
           </PrivateRoute>
         ),
       },
     ],
   },
+
+  // ---------------- DASHBOARD ----------------
   {
     path: "/dashboard",
     element: (
       <PrivateRoute>
-        <DashboardLayout></DashboardLayout>
+        <DashboardLayout />
       </PrivateRoute>
     ),
     children: [
+      // ----------------- USER -----------------
       {
-        path: "/dashboard/user/profile",
+        index: true,
         element: (
-          <UserRoute>
-            <UserProfile></UserProfile>
-          </UserRoute>
+          <ProtectedRoute allowedRoles={["user"]}>
+            <UserProfile />
+          </ProtectedRoute>
         ),
       },
       {
-        path: "/dashboard/user/my-booked-tickets",
+        path: "user/profile",
         element: (
-          <UserRoute>
-            <MyBookedTickets></MyBookedTickets>
-          </UserRoute>
+          <ProtectedRoute allowedRoles={["user"]}>
+            <UserProfile />
+          </ProtectedRoute>
         ),
       },
       {
-        path: "/dashboard/user/transaction-history ",
+        path: "user/my-booked-tickets",
         element: (
-          <UserRoute>
-            <TransactionHistory></TransactionHistory>
-          </UserRoute>
+          <ProtectedRoute allowedRoles={["user"]}>
+            <MyBookedTickets />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "user/transaction-history",
+        element: (
+          <ProtectedRoute allowedRoles={["user"]}>
+            <TransactionHistory />
+          </ProtectedRoute>
         ),
       },
     ],

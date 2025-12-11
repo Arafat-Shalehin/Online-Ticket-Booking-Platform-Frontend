@@ -106,7 +106,7 @@ const DashboardLayout = () => {
                   className="is-drawer-close:tooltip
                   is-drawer-close:tooltip-right"
                   data-tip="Transaction History "
-                  to="/dashboard/user/transaction-history "
+                  to="/dashboard/user/transaction-history"
                 >
                   <GrTransaction />
                   <span className="is-drawer-close:hidden">
