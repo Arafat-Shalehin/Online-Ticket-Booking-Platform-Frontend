@@ -4,31 +4,31 @@ import useSixTickets from "../../QueryOptions/sixTicketQuery";
 import Loader from "../../Components/Common/Loader";
 
 const Advertisement = () => {
-  const { data: tickets, isLoading, isError } = useSixTickets();
+  const { data: tickets, isFetching, isError } = useSixTickets();
   // console.log(tickets);
 
   // Loader progress code
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isFetching) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) return prev;
-        return prev + 10;
+        return prev + 5;
       });
-    }, 200);
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [isLoading]);
+  }, [isFetching]);
 
-  if (isLoading) {
+  if (isFetching) {
     return (
       <div className="flex items-center justify-center bg-white">
         <Loader
           message="Finding Available Tickets..."
-          subMessage="Accessing admin approved tickets..."
+          subMessage="Accessing tickets chosen by admin..."
           progress={progress}
         />
       </div>
@@ -50,8 +50,8 @@ const Advertisement = () => {
               Featured Tickets
             </h2>
             <p className="mt-1 max-w-xl text-sm text-slate-500">
-              Exactly {tickets.length} curated offers, hand‑picked by our travel experts for
-              this week.
+              Exactly {tickets.length} curated offers, hand‑picked by our travel
+              experts for this week.
             </p>
           </div>
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-500">

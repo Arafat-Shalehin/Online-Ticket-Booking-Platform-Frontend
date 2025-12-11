@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import TicketCard from "../../Components/Cards/TicketCard";
 import useAllTickets from "../../QueryOptions/allTicketQuery";
+import Loader from "../../Components/Common/Loader";
 
 const PAGE_SIZE = 6;
 
 const AllTickets = () => {
-  const { data, isLoading, isError } = useAllTickets();
+  const { data, isFetching, isError } = useAllTickets();
   const [searchFrom, setSearchFrom] = useState("");
   const [searchTo, setSearchTo] = useState("");
   const [transportFilter, setTransportFilter] = useState("all");
@@ -17,17 +18,17 @@ const AllTickets = () => {
 //   console.log(tickets);
 
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isFetching) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) return prev;
         return prev + 10;
       });
-    }, 300);
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [isLoading]);
+  }, [isFetching]);
 
   // Unique transport types for filter dropdown
   const transportTypes = useMemo(
@@ -67,7 +68,7 @@ const AllTickets = () => {
   }, [tickets, searchFrom, searchTo, transportFilter, sortOrder]);
 
   //   Loading and error
-  if (isLoading) {
+  if (isFetching) {
     return (
       <div className="flex items-center justify-center bg-white">
         <Loader
@@ -80,7 +81,7 @@ const AllTickets = () => {
   }
   if (isError)
     return (
-      <p className="flex justify-center items-center text-2xl text-red-400 font-semibold">
+      <p className="mt-50 flex justify-center items-center text-2xl text-red-400 font-semibold">
         Failed to load tickets
       </p>
     );

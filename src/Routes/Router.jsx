@@ -6,6 +6,7 @@ import Login from "../Pages/Auth/Login";
 import Register from "../Pages/Auth/Register";
 import PrivateRoute from "./PrivateRoute";
 import AllTickets from "../Pages/Tickets/AllTickets";
+import TicketDetails from "../Pages/Tickets/TicketDetails";
 
 const router = createBrowserRouter([
   {
@@ -18,21 +19,31 @@ const router = createBrowserRouter([
       },
       {
         index: true,
-        Component: App
+        Component: App,
       },
       {
         path: "/auth/login",
-        Component: Login
+        Component: Login,
       },
       {
         path: "/auth/register",
-        Component: Register
+        Component: Register,
       },
       {
         path: "/all-tickets",
-        element: <PrivateRoute>
-          <AllTickets></AllTickets>
-        </PrivateRoute>
+        element: (
+          <PrivateRoute>
+            <AllTickets></AllTickets>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/ticket/:id",
+        element: (
+          <PrivateRoute>
+            <TicketDetails></TicketDetails>
+          </PrivateRoute>
+        ),
       },
     ],
   },

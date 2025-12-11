@@ -6,26 +6,26 @@ import EachTickets from "../../Components/Cards/EachTickets";
 import Loader from "../../Components/Common/Loader";
 
 const LatestTickets = () => {
-  const { data: tickets, isLoading, isError } = useLatestTickets();
+  const { data: tickets, isFetching, isError } = useLatestTickets();
   // console.log(tickets);
 
   // Loader progress code
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isFetching) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) return prev;
         return prev + 10;
       });
-    }, 200);
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [isLoading]);
+  }, [isFetching]);
 
-  if (isLoading) {
+  if (isFetching) {
     return (
       <div className="flex items-center justify-center bg-white">
         <Loader
@@ -39,7 +39,7 @@ const LatestTickets = () => {
   if (isError)
     return (
       <p className="flex justify-center items-center text-2xl text-red-400 font-semibold">
-        Failed to load tickets
+        Failed to load latest tickets.
       </p>
     );
   return (
