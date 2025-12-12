@@ -6,7 +6,9 @@ export default function useApiMutation() {
 
   const mutation = useMutation({
     mutationFn: async ({ url, method = "post", body }) => {
+      // console.log("MUTATION START");
       const res = await axiosSecure[method](url, body);
+      // console.log("MUTATION END");
       return res.data;
     },
   });
