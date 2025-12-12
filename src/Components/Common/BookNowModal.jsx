@@ -1,7 +1,15 @@
-// src/components/BookNowModal.jsx
 import { useState } from "react";
+// import { useNavigate } from "react-router";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import useAuth from "../../Hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
 const BookNowModal = ({ isOpen, onClose, ticket }) => {
+  const { user } = useAuth();
+  // console.log(user);
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+  // const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -31,41 +39,31 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
     try {
       setSubmitting(true);
 
-      // Adjust URL/body according to your backend
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ticketId: ticket._id,
-          quantity: numQty,
-          status: "Pending", // or let backend default it
-        }),
+      const res = await axiosSecure.post(`/bookingTicket/${ticket._id}`, {
+        ticketId: ticket._id,
+        quantity: numQty,
+        status: "Pending",
+        userEmail: user?.email,
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to create booking.");
+      console.log(res.data);
+
+      if (res.data?.success) {
+        setSuccessMsg("Booking created but it is currently Pending.");
+
+        queryClient.invalidateQueries({
+          queryKey: ["booked-tickets"],
+          exact: false,
+        });
+        setTimeout(() => {
+          // navigate("/dashboard/user/my-booked-tickets");
+          onClose();
+        }, 600);
+      } else {
+        setError(res.data?.message || "Could not create booking.");
       }
-
-      setSuccessMsg("Booking created with Pending status.");
-      // Optionally redirect user:
-      // navigate("/my-booked-tickets");
-
-      // If your "My Booked Tickets" page fetches from backend,
-      // the new booking will appear there immediately after this POST succeeds.
-
-      // Reset quantity
-      setQuantity(1);
-
-      // Close modal after short delay
-      setTimeout(() => {
-        onClose();
-        setSuccessMsg("");
-      }, 800);
     } catch (err) {
-      setError(err.message || "Something went wrong.");
+      setError(err?.response?.data?.message || "Something went wrong.");
     } finally {
       setSubmitting(false);
     }

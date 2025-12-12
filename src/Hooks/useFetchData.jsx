@@ -11,7 +11,7 @@ const useFetchData = (queryKey, url, options = {}) => {
       // console.log(res.data);
       return res.data;
     },
-    initialData: [],
+    // initialData: [],
     ...options,
   });
 };

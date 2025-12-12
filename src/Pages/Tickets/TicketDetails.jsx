@@ -22,7 +22,7 @@ import {
 } from "../../Components/ui/tooltip";
 import { ScrollArea } from "../../Components/ui/scroll-area";
 
-// icons (lucide-react)
+// icons
 import {
   Clock,
   MapPin,
@@ -45,6 +45,7 @@ const TicketDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  // Data of specific id
   useEffect(() => {
     const fetchTicket = async () => {
       try {
@@ -62,7 +63,7 @@ const TicketDetails = () => {
     fetchTicket();
   }, [id, axiosSecure]);
 
-  // loading progress micro-interaction
+  // loading progress
   useEffect(() => {
     if (!loading) return;
     setProgress(0);

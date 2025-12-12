@@ -15,7 +15,7 @@ const AllTickets = () => {
   const [progress, setProgress] = useState(0);
 
   const tickets = data;
-//   console.log(tickets);
+  //  console.log(tickets);
 
   useEffect(() => {
     if (!isFetching) return;
