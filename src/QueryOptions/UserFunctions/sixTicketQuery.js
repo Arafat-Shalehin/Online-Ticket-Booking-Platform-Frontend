@@ -1,4 +1,4 @@
-import useFetchData from "../Hooks/useFetchData";
+import useFetchData from "../../Hooks/useFetchData";
 
 const useSixTickets = () => {
   return useFetchData("six-tickets", "/sixTickets");

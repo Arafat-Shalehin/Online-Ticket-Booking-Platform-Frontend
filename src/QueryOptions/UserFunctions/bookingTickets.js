@@ -1,4 +1,4 @@
-import useFetchData from "../Hooks/useFetchData";
+import useFetchData from "../../Hooks/useFetchData";
 
 const useBookingTickets = ({ email, status } = {}) => {
   let url = "/bookedTickets";

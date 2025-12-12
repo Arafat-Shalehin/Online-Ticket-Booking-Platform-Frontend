@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import EachTickets from "../../Components/Cards/EachTickets";
-import useSixTickets from "../../QueryOptions/sixTicketQuery";
+import useSixTickets from "../../QueryOptions/UserFunctions/sixTicketQuery";
 import Loader from "../../Components/Common/Loader";
 
 const Advertisement = () => {

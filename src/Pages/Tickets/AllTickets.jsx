@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import TicketCard from "../../Components/Cards/TicketCard";
-import useAllTickets from "../../QueryOptions/allTicketQuery";
+import useAllTickets from "../../QueryOptions/UserFunctions/allTicketQuery";
 import Loader from "../../Components/Common/Loader";
 
 const PAGE_SIZE = 6;

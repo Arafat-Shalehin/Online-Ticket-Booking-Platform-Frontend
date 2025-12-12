@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import useAuth from "../../../Hooks/useAuth";
-import useBookingTickets from "../../../QueryOptions/bookingTickets";
+import useBookingTickets from "../../../QueryOptions/UserFunctions/bookingTickets";
 import BookingCard from "../../../Components/Cards/BookingCard";
 import Header from "../../../Components/Common/Header";
 import Loader from "../../../Components/Common/Loader";

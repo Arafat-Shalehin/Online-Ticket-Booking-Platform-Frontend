@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "../../Hooks/useAuth";
-import useCreateUser from "../../QueryOptions/createUser";
+import useCreateUser from "../../QueryOptions/UserFunctions/createUser";
 import Loader from "../../Components/Common/Loader";
 
 const Register = () => {

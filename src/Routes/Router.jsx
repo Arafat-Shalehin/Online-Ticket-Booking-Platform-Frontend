@@ -15,6 +15,19 @@ import UserProfile from "../Pages/Dashboard/User/UserProfile";
 import MyBookedTickets from "../Pages/Dashboard/User/MyBookedTickets";
 import TransactionHistory from "../Pages/Dashboard/User/TransactionHistory";
 
+// Vendor Dashboard Pages
+import VendorProfile from "../Pages/Dashboard/Vendor/VendorProfile";
+import AddTicket from "../Pages/Dashboard/Vendor/AddTicket";
+import MyAddedTickets from "../Pages/Dashboard/Vendor/MyAddedTickets";
+import RequestedBookings from "../Pages/Dashboard/Vendor/RequestedBookings";
+import RevenueOverview from "../Pages/Dashboard/Vendor/RevenueOverview";
+
+// Admin Dashboard Pages
+import AdminProfile from "../Pages/Dashboard/Admin/AdminProfile";
+import ManageTickets from "../Pages/Dashboard/Admin/ManageTickets";
+import ManageUsers from "../Pages/Dashboard/Admin/ManageUsers";
+import AdvertiseTickets from "../Pages/Dashboard/Admin/AdvertiseTickets";
+
 // Route Wrappers
 import PrivateRoute from "./PrivateRoute";
 import ProtectedRoute from "./ProtectedRoute";
@@ -98,6 +111,80 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["user"]}>
             <TransactionHistory />
+          </ProtectedRoute>
+        ),
+      },
+      // ----------------- VENDOR -----------------
+      {
+        path: "vendor/profile",
+        element: (
+          <ProtectedRoute allowedRoles={["vendor"]}>
+            <VendorProfile />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "vendor/add-ticket",
+        element: (
+          <ProtectedRoute allowedRoles={["vendor"]}>
+            <AddTicket />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "vendor/my-added-tickets",
+        element: (
+          <ProtectedRoute allowedRoles={["vendor"]}>
+            <MyAddedTickets />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "vendor/requested-bookings",
+        element: (
+          <ProtectedRoute allowedRoles={["vendor"]}>
+            <RequestedBookings />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "vendor/revenue-overview",
+        element: (
+          <ProtectedRoute allowedRoles={["vendor"]}>
+            <RevenueOverview />
+          </ProtectedRoute>
+        ),
+      },
+      // ----------------- ADMIN -----------------
+      {
+        path: "admin/profile",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminProfile />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "admin/manage-tickets",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <ManageTickets />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "admin/manage-users",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <ManageUsers />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "admin/advertise-tickets",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdvertiseTickets />
           </ProtectedRoute>
         ),
       },

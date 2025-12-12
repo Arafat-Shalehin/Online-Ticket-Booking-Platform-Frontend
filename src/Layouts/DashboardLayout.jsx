@@ -1,10 +1,21 @@
 import React from "react";
 import { Link, NavLink, Outlet } from "react-router";
-import { FaRegUserCircle } from "react-icons/fa";
 import { CiBookmarkCheck } from "react-icons/ci";
 import { GrTransaction } from "react-icons/gr";
+import useAuthProfile from "../Hooks/useAuthProfile";
+import {
+  FaRegUserCircle,
+  FaTicketAlt,
+  FaUsersCog,
+  FaBullhorn,
+  FaChartLine,
+} from "react-icons/fa";
+import { MdAddCircleOutline, MdOutlineRequestPage } from "react-icons/md";
+import { RiTicket2Line } from "react-icons/ri";
 
 const DashboardLayout = () => {
+  const { isAdmin, isVendor, isUser } = useAuthProfile();
+  // console.log({ isAdmin, isVendor, isUser });
   return (
     <div>
       <div className="drawer lg:drawer-open">
@@ -75,45 +86,179 @@ const DashboardLayout = () => {
               </li>
 
               {/* Our Dashboard Links */}
-              <li>
-                {/* User Profile */}
-                <NavLink
-                  className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                  data-tip="My Profile"
-                  to="/dashboard/user/profile"
-                >
-                  <FaRegUserCircle />
-                  <span className="is-drawer-close:hidden">My Profile</span>
-                </NavLink>
-              </li>
-              <li>
-                {/* My Booked Tickets  */}
-                <NavLink
-                  className="is-drawer-close:tooltip
+              {isUser && (
+                <>
+                  <li>
+                    {/* User Profile */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="My Profile"
+                      to="/dashboard/user/profile"
+                    >
+                      <FaRegUserCircle />
+                      <span className="is-drawer-close:hidden">My Profile</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    {/* My Booked Tickets  */}
+                    <NavLink
+                      className="is-drawer-close:tooltip
                   is-drawer-close:tooltip-right"
-                  data-tip="My Booked Tickets"
-                  to="/dashboard/user/my-booked-tickets"
-                >
-                  <CiBookmarkCheck />
-                  <span className="is-drawer-close:hidden">
-                    My Booked Tickets
-                  </span>
-                </NavLink>
-              </li>
-              <li>
-                {/* Transaction History   */}
-                <NavLink
-                  className="is-drawer-close:tooltip
+                      data-tip="My Booked Tickets"
+                      to="/dashboard/user/my-booked-tickets"
+                    >
+                      <CiBookmarkCheck />
+                      <span className="is-drawer-close:hidden">
+                        My Booked Tickets
+                      </span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    {/* Transaction History   */}
+                    <NavLink
+                      className="is-drawer-close:tooltip
                   is-drawer-close:tooltip-right"
-                  data-tip="Transaction History "
-                  to="/dashboard/user/transaction-history"
-                >
-                  <GrTransaction />
-                  <span className="is-drawer-close:hidden">
-                    Transaction History{" "}
-                  </span>
-                </NavLink>
-              </li>
+                      data-tip="Transaction History "
+                      to="/dashboard/user/transaction-history"
+                    >
+                      <GrTransaction />
+                      <span className="is-drawer-close:hidden">
+                        Transaction History{" "}
+                      </span>
+                    </NavLink>
+                  </li>
+                </>
+              )}
+              {isVendor && (
+                <>
+                  <li>
+                    {/* Vendor Profile */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Vendor Profile"
+                      to="/dashboard/vendor/profile"
+                    >
+                      <FaRegUserCircle />
+                      <span className="is-drawer-close:hidden">
+                        Vendor Profile
+                      </span>
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    {/* Add Ticket */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Add Ticket"
+                      to="/dashboard/vendor/add-ticket"
+                    >
+                      <MdAddCircleOutline />
+                      <span className="is-drawer-close:hidden">Add Ticket</span>
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    {/* My Added Tickets */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="My Added Tickets"
+                      to="/dashboard/vendor/my-added-tickets"
+                    >
+                      <RiTicket2Line />
+                      <span className="is-drawer-close:hidden">
+                        My Added Tickets
+                      </span>
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    {/* Requested Bookings */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Requested Bookings"
+                      to="/dashboard/vendor/requested-bookings"
+                    >
+                      <MdOutlineRequestPage />
+                      <span className="is-drawer-close:hidden">
+                        Requested Bookings
+                      </span>
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    {/* Revenue Overview */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Revenue Overview"
+                      to="/dashboard/vendor/revenue-overview"
+                    >
+                      <FaChartLine />
+                      <span className="is-drawer-close:hidden">
+                        Revenue Overview
+                      </span>
+                    </NavLink>
+                  </li>
+                </>
+              )}
+              {isAdmin && (
+                <>
+                  <li>
+                    {/* Admin Profile */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Admin Profile"
+                      to="/dashboard/admin/profile"
+                    >
+                      <FaRegUserCircle />
+                      <span className="is-drawer-close:hidden">
+                        Admin Profile
+                      </span>
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    {/* Manage Tickets */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Manage Tickets"
+                      to="/dashboard/admin/manage-tickets"
+                    >
+                      <FaTicketAlt />
+                      <span className="is-drawer-close:hidden">
+                        Manage Tickets
+                      </span>
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    {/* Manage Users */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Manage Users"
+                      to="/dashboard/admin/manage-users"
+                    >
+                      <FaUsersCog />
+                      <span className="is-drawer-close:hidden">
+                        Manage Users
+                      </span>
+                    </NavLink>
+                  </li>
+
+                  <li>
+                    {/* Advertise Tickets */}
+                    <NavLink
+                      className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                      data-tip="Advertise Tickets"
+                      to="/dashboard/admin/advertise-tickets"
+                    >
+                      <FaBullhorn />
+                      <span className="is-drawer-close:hidden">
+                        Advertise Tickets
+                      </span>
+                    </NavLink>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </div>

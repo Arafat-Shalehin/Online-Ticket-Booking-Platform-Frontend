@@ -1,5 +1,5 @@
 import React from "react";
-import useLatestTickets from "../../QueryOptions/latestTicketQuery";
+import useLatestTickets from "../../QueryOptions/UserFunctions/latestTicketQuery";
 import { useState } from "react";
 import { useEffect } from "react";
 import EachTickets from "../../Components/Cards/EachTickets";
