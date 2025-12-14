@@ -10,7 +10,6 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../Firebase/firebase.init";
-import useAxiosSecure from "../Hooks/useAxiosSecure";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -18,7 +17,6 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
-  const axiosSecure = useAxiosSecure(); 
 
   const registerUser = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
@@ -41,48 +39,14 @@ const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true);
-      if (isRegistering) return;
-
-      if (!firebaseUser) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-      // console.log(firebaseUser.email);
-
-      try {
-        const res = await axiosSecure.get(`/users/${firebaseUser.email}`);
-        // console.log(res);
-        const dbUser = res.data;
-        // console.log(dbUser);
-
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || dbUser?.name || null,
-          photoURL: firebaseUser.photoURL || dbUser?.photoURL || null,
-          role: dbUser?.role || "user",
-          dbId: dbUser?._id || null,
-        });
-      } catch (err) {
-        console.error("Failed to fetch DB user profile:", err);
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || null,
-          photoURL: firebaseUser.photoURL || null,
-          role: "user",
-          dbId: null,
-        });
-      } finally {
-        setLoading(false);
-      }
+    const observer = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
     });
-
-    return () => unsubscribe();
-  }, [axiosSecure, isRegistering]);
+    return () => {
+      observer();
+    };
+  }, []);
 
   // console.log(user);
 
@@ -97,7 +61,7 @@ const AuthProvider = ({ children }) => {
     updateUser,
     logoutUser,
     isRegistering,
-    setIsRegistering
+    setIsRegistering,
   };
 
   return (

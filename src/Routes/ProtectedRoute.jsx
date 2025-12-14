@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import useAuthProfile from "../Hooks/useAuthProfile";
 import Loader from "../Components/Common/Loader";
 import {
   UserNotAuthorized,
   VendorNotAuthorized,
   AdminNotAuthorized,
 } from "../Components/NotAuthorized/RoleNotAuthorized";
+import useAuth from "../Hooks/useAuth";
+import useUserDetails from "../QueryOptions/UserFunctions/getUserDetails";
 
 const ROLE_COMPONENT_MAP = {
   user: UserNotAuthorized,
@@ -15,7 +16,9 @@ const ROLE_COMPONENT_MAP = {
 };
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { user, loading } = useAuthProfile();
+  const { user } = useAuth();
+  const { userDetails, loading } = useUserDetails();
+  // console.log(userDetails);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -29,9 +32,10 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   if (loading)
     return <Loader message="Validating role..." progress={progress} />;
 
-  if (!user) return <Navigate to="/auth/login" replace />;
+  if (userDetails?.email && user?.email === false)
+    return <Navigate to="/auth/login" replace />;
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+  if (allowedRoles.length > 0 && !allowedRoles.includes(userDetails?.role)) {
     const NotAuthComponent =
       ROLE_COMPONENT_MAP[allowedRoles[0]] || UserNotAuthorized;
     return <NotAuthComponent />;

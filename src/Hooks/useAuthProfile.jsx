@@ -1,29 +1,29 @@
-import { useContext, useMemo } from "react";
-import { AuthContext } from "../Context/AuthContext";
+import { useMemo } from "react";
+import useUserDetails from "../QueryOptions/UserFunctions/getUserDetails";
 
 export default function useAuthProfile() {
-  const { user, loading } = useContext(AuthContext);
-  // console.log(user);
+  const { userDetails, loading } = useUserDetails();
+  // console.log(userDetails?.name);
 
   // Derived info
   const profile = useMemo(() => {
-    if (!user) return null;
+    if (!userDetails) return null;
 
     return {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      role: user.role || "user",
-      dbId: user.dbId || null,
-      isAdmin: user.role === "admin",
-      isVendor: user.role === "vendor",
-      isUser: user.role === "user",
+      uid: userDetails?._id,
+      email: userDetails?.email,
+      displayName: userDetails?.name,
+      photoURL: userDetails?.photoURL,
+      role: userDetails?.role || "user",
+      dbId: userDetails?._id || null,
+      isAdmin: userDetails?.role === "admin",
+      isVendor: userDetails?.role === "vendor",
+      isUser: userDetails?.role === "user",
     };
-  }, [user]);
+  }, [userDetails]);
 
   return {
-    user: profile,
+    userDetails: profile,
     loading,
     isAdmin: profile?.isAdmin || false,
     isVendor: profile?.isVendor || false,

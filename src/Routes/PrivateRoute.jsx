@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import useAuthProfile from "../Hooks/useAuthProfile";
 import { Navigate, useLocation } from "react-router-dom";
 import Loader from "../Components/Common/Loader";
+import useAuth from "../Hooks/useAuth";
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuthProfile();
+  const { user, loading } = useAuth();
+  // console.log(user);
   const location = useLocation();
   const [progress, setProgress] = useState(0);
 

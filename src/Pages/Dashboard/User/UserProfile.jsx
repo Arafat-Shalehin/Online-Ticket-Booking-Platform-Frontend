@@ -34,7 +34,8 @@ const roleConfig = {
 };
 
 const UserProfile = () => {
-  const { user, loading, isAdmin, isVendor, isUser } = useAuthProfile();
+  const { userDetails, loading, isAdmin, isVendor, isUser } = useAuthProfile();
+  console.log(userDetails);
   const { logoutUser } = useAuth();
 
   //   LogOut Function
@@ -97,7 +98,7 @@ const UserProfile = () => {
   }
 
   // If not logged in
-  if (!user) {
+  if (!userDetails) {
     return (
       <section className="w-full bg-slate-950/95 py-12 px-4">
         <div className="max-w-5xl mx-auto text-center text-slate-100">
@@ -130,12 +131,12 @@ const UserProfile = () => {
   const role = roleConfig[roleKey];
 
   const initials =
-    user.displayName
+    userDetails?.name
       ?.split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase() ||
-    user.email?.[0]?.toUpperCase() ||
+    userDetails?.email?.[0]?.toUpperCase() ||
     "?";
 
   return (
@@ -170,10 +171,10 @@ const UserProfile = () => {
               <div className="relative w-20 h-20 md:w-24 md:h-24">
                 <div className="absolute inset-0 rounded-full bg-linear-to-tr from-sky-500 via-emerald-500 to-indigo-500 opacity-70 blur-sm" />
                 <div className="relative w-full h-full rounded-full border border-slate-800 bg-slate-950 flex items-center justify-center overflow-hidden">
-                  {user.photoURL ? (
+                  {userDetails?.photoURL ? (
                     <img
-                      src={user.photoURL}
-                      alt={user.displayName || "User avatar"}
+                      src={userDetails?.photoURL}
+                      alt={userDetails?.displayName || "User avatar"}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -189,7 +190,7 @@ const UserProfile = () => {
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-xl md:text-2xl font-semibold truncate">
-                  {user.displayName || "Unnamed User"}
+                  {userDetails?.displayName || "Unnamed User"}
                 </h3>
                 <span
                   className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-full bg-linear-to-r ${role.color} text-white shadow-sm shadow-black/20`}
@@ -200,17 +201,17 @@ const UserProfile = () => {
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-slate-300">
-                {user.email && (
+                {userDetails?.email && (
                   <div className="inline-flex items-center gap-1.5">
                     <FiMail className="w-4 h-4 text-slate-400" />
-                    <span className="truncate">{user.email}</span>
+                    <span className="truncate">{userDetails?.email}</span>
                   </div>
                 )}
 
-                {user.uid && (
+                {userDetails?.uid && (
                   <div className="inline-flex items-center gap-1.5 text-xs bg-slate-900/70 border border-slate-800 px-2.5 py-1 rounded-full text-slate-400">
                     <span className="font-mono truncate">
-                      ID: {user.uid.slice(0, 8)}…
+                      ID: {userDetails?.uid.slice(0, 8)}…
                     </span>
                   </div>
                 )}
@@ -278,9 +279,10 @@ const UserProfile = () => {
                 Internal Reference
               </span>
               <p className="mt-2 text-sm font-mono text-slate-200 truncate">
-                {user.dbId ? (
+                {userDetails?.dbId ? (
                   <>
-                    DB ID: <span className="text-slate-300">{user.dbId}</span>
+                    DB ID:{" "}
+                    <span className="text-slate-300">{userDetails?.dbId}</span>
                   </>
                 ) : (
                   <span className="text-slate-500">
