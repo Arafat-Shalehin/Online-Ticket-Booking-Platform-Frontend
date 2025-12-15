@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+import { HiOutlineTicket } from "react-icons/hi";
 const EmptyState = () => (
   <motion.div
     initial={{ opacity: 0, y: 16 }}

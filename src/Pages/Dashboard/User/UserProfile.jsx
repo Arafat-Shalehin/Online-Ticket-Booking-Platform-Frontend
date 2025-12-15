@@ -35,7 +35,7 @@ const roleConfig = {
 
 const UserProfile = () => {
   const { userDetails, loading, isAdmin, isVendor, isUser } = useAuthProfile();
-  console.log(userDetails);
+  // console.log(userDetails);
   const { logoutUser } = useAuth();
 
   //   LogOut Function

@@ -5,6 +5,7 @@ import useBookingTickets from "../../../QueryOptions/UserFunctions/bookingTicket
 import BookingCard from "../../../Components/Cards/BookingCard";
 import Header from "../../../Components/Common/Header";
 import Loader from "../../../Components/Common/Loader";
+import EmptyState from "../../../Components/Common/EmptyState";
 
 const MyBookedTickets = ({ onPay }) => {
   const { user } = useAuth();

@@ -4,11 +4,15 @@ import useAuth from "../../Hooks/useAuth";
 import { Link, NavLink } from "react-router";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import useUserDetails from "../../QueryOptions/UserFunctions/getUserDetails";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, logoutUser } = useAuth();
+  // console.log(user);
+  const { userDetails } = useUserDetails();
+  // console.log(userDetails);
 
   const handleLogOut = () => {
     Swal.fire({
@@ -59,22 +63,31 @@ const Navbar = () => {
           <div className="hidden md:flex md:items-center md:space-x-6">
             <NavLink
               to="/"
-              className={({isActive}) => isActive ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold" : "text-sm font-medium text-gray-700 hover:text-indigo-600"}
-              
+              className={({ isActive }) =>
+                isActive
+                  ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold"
+                  : "text-sm font-medium text-gray-700 hover:text-indigo-600"
+              }
             >
               Home
             </NavLink>
             <NavLink
               to="/all-tickets"
-              className={({isActive}) => isActive ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold" : "text-sm font-medium text-gray-700 hover:text-indigo-600"}
-              
+              className={({ isActive }) =>
+                isActive
+                  ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold"
+                  : "text-sm font-medium text-gray-700 hover:text-indigo-600"
+              }
             >
               All Tickets
             </NavLink>
             <NavLink
               to="/dashboard"
-              className={({isActive}) => isActive ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold" : "text-sm font-medium text-gray-700 hover:text-indigo-600"}
-              
+              className={({ isActive }) =>
+                isActive
+                  ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold"
+                  : "text-sm font-medium text-gray-700 hover:text-indigo-600"
+              }
             >
               Dashboard
             </NavLink>
@@ -111,7 +124,7 @@ const Navbar = () => {
                     className="h-8 w-8 rounded-full object-cover"
                   />
                   <span className="ml-2 text-sm font-medium text-gray-700">
-                    {user?.displayName}
+                    {user?.displayName || userDetails?.name}
                   </span>
                   <FaChevronDown className="ml-1 h-3 w-3 text-gray-500" />
                 </button>
@@ -124,13 +137,13 @@ const Navbar = () => {
                     ring-1 ring-black ring-opacity-5 text-center"
                     onMouseLeave={() => setUserMenuOpen(false)}
                   >
-                    <a
-                      to="/profile"
+                    <Link
+                      to={`/dashboard/${userDetails?.role}/profile`}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={closeMenus}
                     >
                       My Profile
-                    </a>
+                    </Link>
                     <button
                       onClick={handleLogOut}
                       className="border rounded px-4 py-2 
@@ -171,22 +184,31 @@ const Navbar = () => {
           <div className="space-y-1 px-2 pt-2 pb-3">
             <NavLink
               to="/"
-              className={({isActive}) => isActive ? "block w-[20%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b" : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"}
-              
+              className={({ isActive }) =>
+                isActive
+                  ? "block w-[20%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b"
+                  : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+              }
             >
               Home
             </NavLink>
             <NavLink
               to="/all-tickets"
-              className={({isActive}) => isActive ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b" : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"}
-              
+              className={({ isActive }) =>
+                isActive
+                  ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b"
+                  : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+              }
             >
               All Tickets
             </NavLink>
             <NavLink
               to="/dashboard"
-              className={({isActive}) => isActive ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b" : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"}
-              
+              className={({ isActive }) =>
+                isActive
+                  ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b"
+                  : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+              }
             >
               Dashboard
             </NavLink>
@@ -203,18 +225,18 @@ const Navbar = () => {
                   />
                   <div className="ml-3">
                     <div className="text-base font-medium text-gray-800">
-                      {user?.displayName}
+                      {user?.displayName || userDetails?.name}
                     </div>
                   </div>
                 </div>
                 <div className="mt-3 space-y-1 px-2">
-                  <a
-                    href="/profile"
+                  <Link
+                    to={`/dashboard/${userDetails?.role}/profile`}
                     className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
                     onClick={closeMenus}
                   >
                     My Profile
-                  </a>
+                  </Link>
                   <button
                     onClick={handleLogOut}
                     className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-100"

@@ -3,6 +3,7 @@ import { useState } from "react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const BookNowModal = ({ isOpen, onClose, ticket }) => {
   const { user } = useAuth();
@@ -43,13 +44,18 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
         ticketId: ticket._id,
         quantity: numQty,
         status: "Pending",
+        userName: user?.displayName,
         userEmail: user?.email,
+        vendorEmail: ticket.vendorEmail,
       });
 
       console.log(res.data);
 
       if (res.data?.success) {
         setSuccessMsg("Booking created but it is currently Pending.");
+        toast.success(
+          "You booking is confirmed. Please wait for the vendor to accept your booking."
+        );
 
         queryClient.invalidateQueries({
           queryKey: ["booked-tickets"],

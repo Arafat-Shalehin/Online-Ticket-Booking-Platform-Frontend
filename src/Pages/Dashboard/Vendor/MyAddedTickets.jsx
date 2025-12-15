@@ -222,7 +222,7 @@ const MyAddedTickets = () => {
             My Added Tickets
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage all tickets you have created. You can update or remove them
+            Manage all({tickets.length}) tickets you have created. You can update or remove them
             anytime.
           </p>
         </div>

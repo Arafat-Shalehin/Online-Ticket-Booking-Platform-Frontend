@@ -32,13 +32,15 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   if (loading)
     return <Loader message="Validating role..." progress={progress} />;
 
-  if (userDetails?.email && user?.email === false)
-    return <Navigate to="/auth/login" replace />;
+  if (userDetails?.email === user?.email) {
+    if (userDetails?.email && user?.email === false)
+      return <Navigate to="/auth/login" replace />;
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userDetails?.role)) {
-    const NotAuthComponent =
-      ROLE_COMPONENT_MAP[allowedRoles[0]] || UserNotAuthorized;
-    return <NotAuthComponent />;
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userDetails?.role)) {
+      const NotAuthComponent =
+        ROLE_COMPONENT_MAP[allowedRoles[0]] || UserNotAuthorized;
+      return <NotAuthComponent />;
+    }
   }
 
   return children;
