@@ -33,7 +33,7 @@ const roleConfig = {
   },
 };
 
-const UserProfile = () => {
+const VendorProfile = () => {
   const { userDetails, loading, isAdmin, isVendor, isUser } = useAuthProfile();
   // console.log(userDetails);
   const { logoutUser } = useAuth();
@@ -316,4 +316,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default VendorProfile;

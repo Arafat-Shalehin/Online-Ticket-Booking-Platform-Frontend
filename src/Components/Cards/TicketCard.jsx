@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 
 const TicketCard = ({ ticket }) => {
-  const departure = new Date(ticket.departureTime);
+  const departure = new Date(ticket.departureTime || ticket.departureDateTime);
   const departureDate = format(departure, "PPP");
   const departureTime = format(departure, "p");
 
@@ -29,7 +29,7 @@ const TicketCard = ({ ticket }) => {
             {ticket.title}
           </h3>
           <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            {ticket.quantity} left
+            {ticket.quantity || ticket.ticketQuantity} left
           </span>
         </div>
 

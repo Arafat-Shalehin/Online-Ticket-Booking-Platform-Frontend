@@ -76,7 +76,9 @@ const TicketDetails = () => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const countdown = useCountdown(ticket?.departureTime);
+  const countdown = useCountdown(
+    ticket?.departureTime || ticket?.departureDateTime
+  );
 
   const hasDeparted =
     ticket && new Date(ticket.departureTime).getTime() <= Date.now();
@@ -115,7 +117,9 @@ const TicketDetails = () => {
   }
 
   // derived formatted dates
-  const departureDateObj = new Date(ticket.departureTime);
+  const departureDateObj = new Date(
+    ticket.departureTime || ticket.departureDateTime
+  );
   const departureDate = format(departureDateObj, "PPP");
   const departureTime = format(departureDateObj, "p");
 
@@ -299,7 +303,7 @@ const TicketDetails = () => {
                       }`}
                     >
                       <Users className="h-4 w-4" />
-                      <span>{ticket.quantity}</span>
+                      <span>{ticket.quantity || ticket.ticketQuantity}</span>
                     </div>
                   </div>
                 </div>
