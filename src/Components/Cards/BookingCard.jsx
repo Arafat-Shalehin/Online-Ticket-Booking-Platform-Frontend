@@ -12,6 +12,7 @@ import {
   HiXCircle,
 } from "react-icons/hi";
 import Countdown from "../Common/Countdown";
+import { Link } from "react-router";
 
 const BookingCard = ({ booking, index, onPay, isPaying }) => {
   const {
@@ -20,20 +21,20 @@ const BookingCard = ({ booking, index, onPay, isPaying }) => {
     image,
     from,
     to,
-    departureTime,
+    departureDateTime,
     status = "pending",
     bookedQuantity,
     unitPrice,
     totalPrice,
   } = booking;
 
-  const countdown = useCountdown(departureTime);
+  const countdown = useCountdown(departureDateTime);
   const isExpired = countdown?.isExpired;
 
   const canPay =
     status === "accepted" && !isExpired && !isPaying && totalPrice > 0;
 
-    // Will work on this later.
+  // Will work on this later.
   const handlePayClick = () => {
     if (!canPay) return;
     if (onPay) {
@@ -87,7 +88,7 @@ const BookingCard = ({ booking, index, onPay, isPaying }) => {
             </p>
             <p className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
               <HiOutlineClock className="h-3.5 w-3.5" />
-              <span>{formatDateTime(departureTime)}</span>
+              <span>{formatDateTime(departureDateTime)}</span>
             </p>
           </div>
 
@@ -109,7 +110,7 @@ const BookingCard = ({ booking, index, onPay, isPaying }) => {
         <div className="border-t border-dashed border-slate-200 pt-2 dark:border-slate-700">
           <Countdown
             countdown={countdown}
-            departureDateTime={departureTime}
+            departureDateTime={departureDateTime}
             status={status}
           />
         </div>
@@ -161,11 +162,17 @@ const BookingCard = ({ booking, index, onPay, isPaying }) => {
           </div>
 
           {status === "accepted" && (
-            <button
-              type="button"
-              disabled={!canPay}
-              onClick={handlePayClick}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-900 ${
+            <Link
+              to={
+                canPay
+                  ? `/dashboard/payment/${_id}` 
+                  : "#"
+              }
+              onClick={(e) => {
+                if (!canPay) e.preventDefault();
+                handlePayClick();
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 canPay
                   ? "bg-sky-600 text-white shadow-sm shadow-sky-400/40 hover:bg-sky-700"
                   : "cursor-not-allowed bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-500"
@@ -175,7 +182,7 @@ const BookingCard = ({ booking, index, onPay, isPaying }) => {
                 <span className="h-3 w-3 animate-spin rounded-full border border-white/40 border-t-transparent" />
               )}
               <span>{isExpired ? "Departure Passed" : "Pay Now"}</span>
-            </button>
+            </Link>
           )}
 
           {status !== "accepted" && (

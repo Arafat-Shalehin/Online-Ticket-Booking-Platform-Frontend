@@ -34,7 +34,8 @@ const roleConfig = {
 };
 
 const UserProfile = () => {
-  const { userDetails, loading, isAdmin, isVendor, isUser } = useAuthProfile();
+  const { userDetails, isLoading, isAdmin, isVendor, isUser } =
+    useAuthProfile();
   // console.log(userDetails);
   const { logoutUser } = useAuth();
 
@@ -64,9 +65,9 @@ const UserProfile = () => {
   };
 
   // Loading skeleton
-  if (loading) {
+  if (isLoading) {
     return (
-      <section className="w-full bg-slate-950/95 py-10 px-4">
+      <section className="w-full py-10 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <div className="h-7 w-40 bg-slate-800 rounded-md animate-pulse" />

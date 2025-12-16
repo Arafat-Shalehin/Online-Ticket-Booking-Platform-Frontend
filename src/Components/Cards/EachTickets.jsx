@@ -60,7 +60,7 @@ const EachTickets = ({ ticket, index }) => {
         <div className="mb-3 flex items-center justify-between text-xs text-slate-500">
           <span>
             <span className="font-semibold text-emerald-600">
-              {ticket.quantity}
+              {ticket.ticketQuantity}
             </span>{" "}
             tickets left
           </span>

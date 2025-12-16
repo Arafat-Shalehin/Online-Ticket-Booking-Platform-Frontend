@@ -1,29 +1,61 @@
-import { useState } from "react";
-// import { useNavigate } from "react-router";
+import { useState, useMemo } from "react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import formatDateTime from "../Common/formatDateTime";
 
 const BookNowModal = ({ isOpen, onClose, ticket }) => {
   const { user } = useAuth();
-  // console.log(user);
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-  // const navigate = useNavigate();
+
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  const maxQuantity = ticket.ticketQuantity ?? ticket.quantity ?? 0; // fallback for safety
+
+  const departureDateTime = ticket?.departureDateTime || ticket?.departureTime;
+
+  const departure = useMemo(() => {
+    return departureDateTime ? new Date(departureDateTime) : null;
+  }, [departureDateTime]);
+
+  const { isSoldOut, hasDeparted } = useMemo(() => {
+    const now = new Date();
+    return {
+      isSoldOut: maxQuantity <= 0,
+      hasDeparted: departure ? departure <= now : false,
+    };
+  }, [maxQuantity, departure]);
+
   if (!isOpen || !ticket) return null;
 
-  const maxQuantity = ticket.quantity ?? 0;
+  const isDisabled = submitting || isSoldOut || hasDeparted || !user?.email;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccessMsg("");
+
+    if (!user?.email) {
+      setError("You must be logged in to book tickets.");
+      return;
+    }
+
+    if (isSoldOut) {
+      setError("This ticket is sold out.");
+      return;
+    }
+
+    if (hasDeparted) {
+      setError(
+        "Departure time has passed. You can no longer book this ticket."
+      );
+      return;
+    }
 
     const numQty = Number(quantity);
 
@@ -41,28 +73,27 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
       setSubmitting(true);
 
       const res = await axiosSecure.post(`/bookingTicket/${ticket._id}`, {
-        ticketId: ticket._id,
         quantity: numQty,
-        status: "Pending",
+        status: "pending",
         userName: user?.displayName,
         userEmail: user?.email,
-        vendorEmail: ticket.vendorEmail,
+        vendorEmail: ticket?.vendorEmail,
       });
 
-      console.log(res.data);
-
       if (res.data?.success) {
-        setSuccessMsg("Booking created but it is currently Pending.");
+        setSuccessMsg(
+          "Booking request created. Please wait for the vendor to approve."
+        );
         toast.success(
-          "You booking is confirmed. Please wait for the vendor to accept your booking."
+          "Your booking request has been created. Awaiting vendor approval."
         );
 
         queryClient.invalidateQueries({
           queryKey: ["booked-tickets"],
           exact: false,
         });
+
         setTimeout(() => {
-          // navigate("/dashboard/user/my-booked-tickets");
           onClose();
         }, 600);
       } else {
@@ -77,8 +108,9 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <div className="flex items-start justify-between gap-4">
+      <div className="mx-4 w-full max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-slate-200/80">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
               Book Tickets
@@ -86,6 +118,11 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
             <p className="mt-1 text-xs text-slate-500">
               {ticket.title} • {ticket.from} → {ticket.to}
             </p>
+            {departure && (
+              <p className="mt-0.5 text-[11px] text-slate-400">
+                Departure: {formatDateTime(departureDateTime)}
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -96,15 +133,22 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-600">
               Price per ticket:{" "}
-              <span className="font-semibold">${ticket.price.toFixed(2)}</span>
+              <span className="font-semibold">
+                ${Number(ticket.price).toFixed(2)}
+              </span>
             </span>
             <span className="text-xs text-slate-500">
               Available:{" "}
-              <span className="font-semibold text-emerald-600">
+              <span
+                className={`font-semibold ${
+                  isSoldOut ? "text-rose-600" : "text-emerald-600"
+                }`}
+              >
                 {maxQuantity}
               </span>
             </span>
@@ -120,10 +164,15 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
               max={maxQuantity}
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              disabled={isDisabled}
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
             />
             <p className="mt-1 text-[11px] text-slate-400">
-              You can book up to {maxQuantity} tickets.
+              {isSoldOut
+                ? "No tickets remaining for this trip."
+                : hasDeparted
+                ? "Departure time has passed. Booking is closed."
+                : `You can book up to ${maxQuantity} tickets.`}
             </p>
           </div>
 
@@ -142,19 +191,31 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={isDisabled}
               className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
             >
-              {submitting ? "Booking..." : "Confirm Booking"}
+              {submitting
+                ? "Booking..."
+                : hasDeparted
+                ? "Booking Closed"
+                : isSoldOut
+                ? "Sold Out"
+                : "Confirm Booking"}
             </button>
           </div>
+
+          {!user?.email && (
+            <p className="pt-1 text-[11px] text-amber-600">
+              Please log in to book tickets.
+            </p>
+          )}
         </form>
       </div>
     </div>

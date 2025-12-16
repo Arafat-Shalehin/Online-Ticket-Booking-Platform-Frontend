@@ -27,7 +27,7 @@ const Navbar = () => {
       if (result.isConfirmed) {
         logoutUser()
           .then((result) => {
-            console.log(result);
+            // console.log(result);
             toast.success("LogOut Successful.");
             setMobileMenuOpen(false);
             setUserMenuOpen(false);

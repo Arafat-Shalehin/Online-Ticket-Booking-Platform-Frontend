@@ -5,10 +5,13 @@ import useAuth from "../../../Hooks/useAuth";
 import Loader from "../../../Components/Common/Loader";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+// import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const RequestedBookings = () => {
   const { user, loading } = useAuth();
   const [progress, setProgress] = useState(0);
+  // const axiosSecure = useAxiosSecure();
+  // const [bookings, setBookings] = useState([]);
 
   // Progress bar for Loader
   useEffect(() => {
@@ -19,10 +22,12 @@ const RequestedBookings = () => {
         if (prev >= 90) return prev;
         return prev + 5;
       });
-    }, 300);
+    }, 500);
 
     return () => clearInterval(interval);
   }, [loading]);
+
+  // console.log(user);
 
   // Fetch pending booking requests for this vendor
   const {
@@ -35,9 +40,28 @@ const RequestedBookings = () => {
     ["vendorBookings", user?.email],
     `/bookings/vendor?email=${user?.email}`,
     {
-      enabled: !!user?.email,
+      enabled: !!user?.email && !loading,
     }
   );
+
+  // useEffect(() => {
+  //   const fetchBookings = async () => {
+  //     if (!user?.email) return;
+
+  //     try {
+  //       const res = await axiosSecure.get(`/bookings/vendor?email=${user?.email}`);
+  //       console.log(res.data);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   fetchBookings();
+  // }, [user?.email, axiosSecure]);
+
+  // fetch(`/bookings/vendor?email=${user?.email}`)
+  //   .then((res) => res.json())
+  //   .then((data) => console.log(data));
 
   const { mutate: mutateBooking, isPending: isMutating } = useApiMutation();
 
@@ -104,7 +128,7 @@ const RequestedBookings = () => {
     );
   }
 
-  // Error
+  // Error;
   if (isError) {
     return (
       <div className="max-w-3xl mx-auto mt-10 text-center">
@@ -204,7 +228,7 @@ const RequestedBookings = () => {
                     <td className="px-4 py-3 align-top">
                       <div className="flex flex-col">
                         <span className="font-medium text-slate-800 dark:text-slate-100">
-                          {booking.ticketTitle}
+                          {booking.title}
                         </span>
                         {booking.unitPrice != null && (
                           <span className="text-xs text-slate-500 dark:text-slate-400">

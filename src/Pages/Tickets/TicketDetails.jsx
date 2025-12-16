@@ -76,13 +76,11 @@ const TicketDetails = () => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const countdown = useCountdown(
-    ticket?.departureTime || ticket?.departureDateTime
-  );
+  const countdown = useCountdown(ticket?.departureDateTime);
 
   const hasDeparted =
-    ticket && new Date(ticket.departureTime).getTime() <= Date.now();
-  const isSoldOut = ticket && ticket.quantity <= 0;
+    ticket && new Date(ticket?.departureDateTime).getTime() <= Date.now();
+  const isSoldOut = ticket && ticket?.ticketQuantity <= 0;
   const isBookNowDisabled = hasDeparted || isSoldOut;
 
   if (loading) {
@@ -117,9 +115,7 @@ const TicketDetails = () => {
   }
 
   // derived formatted dates
-  const departureDateObj = new Date(
-    ticket.departureTime || ticket.departureDateTime
-  );
+  const departureDateObj = new Date(ticket?.departureDateTime);
   const departureDate = format(departureDateObj, "PPP");
   const departureTime = format(departureDateObj, "p");
 
@@ -303,7 +299,7 @@ const TicketDetails = () => {
                       }`}
                     >
                       <Users className="h-4 w-4" />
-                      <span>{ticket.quantity || ticket.ticketQuantity}</span>
+                      <span>{ticket.ticketQuantity}</span>
                     </div>
                   </div>
                 </div>

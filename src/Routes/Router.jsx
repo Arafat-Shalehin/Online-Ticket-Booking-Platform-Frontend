@@ -31,6 +31,9 @@ import AdvertiseTickets from "../Pages/Dashboard/Admin/AdvertiseTickets";
 // Route Wrappers
 import PrivateRoute from "./PrivateRoute";
 import ProtectedRoute from "./ProtectedRoute";
+import Payment from "../Pages/Dashboard/Payment/Payment";
+import PaymentSuccess from "../Pages/Dashboard/Payment/PaymentSuccess";
+import PaymentCancelled from "../Pages/Dashboard/Payment/PaymentCancelled";
 
 const router = createBrowserRouter([
   {
@@ -81,6 +84,22 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
+      {
+        path: "user/my-booked-tickets/dashboard/payment/:ticketId",
+        element: (
+          <PrivateRoute>
+            <Payment />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "payment-success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "payment-cancelled",
+        element: <PaymentCancelled />,
+      },
       // ----------------- USER -----------------
       {
         path: "user/profile",
