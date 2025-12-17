@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import useUserDetails from "../QueryOptions/UserFunctions/getUserDetails";
 
 export default function useAuthProfile() {
-  const { userDetails, isLoading } = useUserDetails();
+  const { userDetails, isLoading} = useUserDetails();
   // console.log(userDetails?.name);
 
   // Derived info
@@ -19,6 +19,7 @@ export default function useAuthProfile() {
       isAdmin: userDetails?.role === "admin",
       isVendor: userDetails?.role === "vendor",
       isUser: userDetails?.role === "user",
+      isFraud: userDetails?.isFraud || false
     };
   }, [userDetails]);
 

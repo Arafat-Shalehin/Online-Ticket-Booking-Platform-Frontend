@@ -5,13 +5,10 @@ import useAuth from "../../../Hooks/useAuth";
 import Loader from "../../../Components/Common/Loader";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-// import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const RequestedBookings = () => {
   const { user, loading } = useAuth();
   const [progress, setProgress] = useState(0);
-  // const axiosSecure = useAxiosSecure();
-  // const [bookings, setBookings] = useState([]);
 
   // Progress bar for Loader
   useEffect(() => {
@@ -38,30 +35,11 @@ const RequestedBookings = () => {
     refetch,
   } = useFetchData(
     ["vendorBookings", user?.email],
-    `/bookings/vendor?email=${user?.email}`,
+    `/vendor/booking?email=${user?.email}`,
     {
       enabled: !!user?.email && !loading,
     }
   );
-
-  // useEffect(() => {
-  //   const fetchBookings = async () => {
-  //     if (!user?.email) return;
-
-  //     try {
-  //       const res = await axiosSecure.get(`/bookings/vendor?email=${user?.email}`);
-  //       console.log(res.data);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   fetchBookings();
-  // }, [user?.email, axiosSecure]);
-
-  // fetch(`/bookings/vendor?email=${user?.email}`)
-  //   .then((res) => res.json())
-  //   .then((data) => console.log(data));
 
   const { mutate: mutateBooking, isPending: isMutating } = useApiMutation();
 

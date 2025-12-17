@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-// adjust these imports according to your project structure
 import useAuth from "../../../Hooks/useAuth";
 import { toast } from "react-toastify";
+// import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useApiMutation from "../../../Hooks/useApiMutation";
+import useAuthProfile from "../../../Hooks/useAuthProfile";
 
 const perksOptions = [
   "AC",
@@ -22,8 +23,14 @@ const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 const AddTicket = () => {
   const { mutateAsync: addTicket } = useApiMutation();
   const { user, loading, setLoading } = useAuth();
+  const { userDetails } = useAuthProfile();
+  // console.log(userDetails);
   const [serverError, setServerError] = useState("");
   const [progress, setProgress] = useState(0);
+  const [vendorFraud, setVendorFraud] = useState(false);
+  // const axiosSecure = useAxiosSecure();
+
+  // console.log(user);
 
   const {
     register,
@@ -51,6 +58,12 @@ const AddTicket = () => {
     try {
       setLoading(true);
       setServerError("");
+
+      if (userDetails?.isFraud === true) {
+        toast.error("A fraud can not add tickets");
+        setVendorFraud(true);
+        return;
+      }
 
       // 1. Upload image to imgbb
       const imageFile = data.image[0];
@@ -82,8 +95,9 @@ const AddTicket = () => {
         from: data.from,
         to: data.to,
         departureDateTime: new Date(data.departureDateTime),
-        vendorName: user?.displayName || "Unknown Vendor",
-        vendorEmail: user?.email,
+        vendorName:
+          user?.displayName || userDetails?.displayName || "Unknown Vendor",
+        vendorEmail: user?.email || userDetails?.email,
         verificationStatus: "pending",
       };
 
@@ -91,13 +105,17 @@ const AddTicket = () => {
 
       // 3. Send to backend
       await addTicket({ url: "/ticket", method: "post", body: ticketPayload });
+      // const res = await axiosSecure.post("/ticket", ticketPayload);
+      // console.log(res);
 
       toast.success("Ticket added successfully!");
       reset();
     } catch (err) {
       console.error(err);
-      setServerError(err.message || "Something went wrong");
-      toast.error(err.message || "Something went wrong");
+      const msg =
+        err?.response?.data?.message || err.message || "Something went wrong";
+      setServerError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -125,6 +143,13 @@ const AddTicket = () => {
         <p className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
           {serverError}
         </p>
+      )}
+
+      {vendorFraud && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          This account cannot add tickets right now. If you think this is a
+          mistake, please contact support or the administrator.
+        </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -325,7 +350,7 @@ const AddTicket = () => {
             <input
               type="text"
               readOnly
-              value={user?.displayName || ""}
+              value={user?.displayName || userDetails?.displayName || ""}
               className="w-full px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 cursor-not-allowed"
             />
           </div>
@@ -348,7 +373,7 @@ const AddTicket = () => {
         <div className="pt-2">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || vendorFraud}
             className="inline-flex items-center justify-center px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Adding..." : "Add Ticket"}

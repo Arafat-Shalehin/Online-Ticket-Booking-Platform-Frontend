@@ -57,7 +57,7 @@ const Login = () => {
       };
 
       const userGoogleInfo = await createUser(userProfile);
-      console.log(userGoogleInfo);
+      // console.log(userGoogleInfo);
 
       setLoading(false);
 
@@ -65,6 +65,7 @@ const Login = () => {
       navigate(from, { replace: true });
     } catch (error) {
       console.error(error);
+      setLoading(false);
       toast.error("Google Login Failed, Please Try again later.");
     }
   };
