@@ -55,11 +55,11 @@ const PopularPlaces = () => {
   }
 
   return (
-    <section className="py-16 bg-slate-50">
+    <section className="py-16">
       <div className="max-w-7xl mx-auto px-4">
         {/* Section header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
-          <div>
+          <div className="dark:*:text-white">
             <p className="text-sm uppercase tracking-[0.2em] text-emerald-600 font-semibold">
               Discover
             </p>

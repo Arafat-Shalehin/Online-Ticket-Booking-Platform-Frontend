@@ -51,7 +51,7 @@ const RevenueOverview = () => {
   const totalTicketsAdded = Number(stats.totalTicketsAdded || 0);
 
   const chartData = [
-    { name: "Total Revenue (৳)", value: totalRevenue },
+    { name: "Total Revenue ($)", value: totalRevenue },
     { name: "Tickets Sold", value: totalTicketsSold },
     { name: "Tickets Added", value: totalTicketsAdded },
   ];
@@ -115,7 +115,7 @@ const RevenueOverview = () => {
             Total Revenue
           </p>
           <p className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
-            ৳{" "}
+            ${" "}
             {totalRevenue.toLocaleString("en-BD", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,

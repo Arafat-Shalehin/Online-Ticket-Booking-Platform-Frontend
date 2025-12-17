@@ -5,11 +5,13 @@ import { Link, NavLink } from "react-router";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import useUserDetails from "../../QueryOptions/UserFunctions/getUserDetails";
+import useTheme from "../../Hooks/useTheme";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, logoutUser } = useAuth();
+  const { theme, setTheme } = useTheme();
   // console.log(user);
   const { userDetails } = useUserDetails();
   // console.log(userDetails);
@@ -46,21 +48,21 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm">
+    <nav className="border-b shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left: Logo */}
           <div className="flex items-center">
             <a href="/" className="flex items-center">
               <FaBusAlt className="mr-2 h-7 w-7 text-indigo-600" />
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl dark:text-white font-bold text-gray-900">
                 TicketBari
               </span>
             </a>
           </div>
 
           {/* Center: Desktop menu */}
-          <div className="hidden md:flex md:items-center md:space-x-6">
+          <div className="hidden md:flex md:items-center md:space-x-6 dark:*:text-white">
             <NavLink
               to="/"
               className={({ isActive }) =>
@@ -100,7 +102,7 @@ const Navbar = () => {
                 <Link
                   to="/auth/login"
                   // onClick={handleLogin}
-                  className="text-sm font-medium text-gray-700 hover:bg-gray-400/50 hover:text-white hover:font-bold transition-colors duration-150 border rounded px-4 py-1 cursor-pointer"
+                  className="text-sm font-medium text-gray-700 hover:bg-gray-400/50 hover:text-white hover:font-bold transition-colors duration-150 border rounded px-4 py-2 cursor-pointer dark:text-white"
                 >
                   Login
                 </Link>
@@ -123,7 +125,7 @@ const Navbar = () => {
                     alt="User avatar"
                     className="h-8 w-8 rounded-full object-cover"
                   />
-                  <span className="ml-2 text-sm font-medium text-gray-700">
+                  <span className="ml-2 text-sm font-medium text-gray-700 dark:*:text-white">
                     {user?.displayName || userDetails?.name}
                   </span>
                   <FaChevronDown className="ml-1 h-3 w-3 text-gray-500" />
@@ -145,10 +147,18 @@ const Navbar = () => {
                       My Profile
                     </Link>
                     <button
+                      onClick={() =>
+                        setTheme(theme === "dark" ? "light" : "dark")
+                      }
+                      className="border-2 border-black px-2 py-1 rounded-2xl hover:cursor-pointer flex text-black mx-auto mt-2"
+                    >
+                      {theme === "dark" ? "Light" : "Dark"} Mode
+                    </button>
+                    <button
                       onClick={handleLogOut}
                       className="border rounded px-4 py-2 
                       text-left text-sm text-gray-700 
-                      hover:bg-gray-50 mt-2"
+                      hover:bg-gray-50 mt-2 hover:cursor-pointer"
                     >
                       Logout
                     </button>
@@ -183,6 +193,7 @@ const Navbar = () => {
         <div className="md:hidden" id="mobile-menu">
           <div className="space-y-1 px-2 pt-2 pb-3">
             <NavLink
+              onClick={() => setMobileMenuOpen(false)}
               to="/"
               className={({ isActive }) =>
                 isActive
@@ -193,6 +204,7 @@ const Navbar = () => {
               Home
             </NavLink>
             <NavLink
+              onClick={() => setMobileMenuOpen(false)}
               to="/all-tickets"
               className={({ isActive }) =>
                 isActive
@@ -203,6 +215,7 @@ const Navbar = () => {
               All Tickets
             </NavLink>
             <NavLink
+              onClick={() => setMobileMenuOpen(false)}
               to="/dashboard"
               className={({ isActive }) =>
                 isActive
@@ -238,6 +251,14 @@ const Navbar = () => {
                     My Profile
                   </Link>
                   <button
+                    onClick={() =>
+                      setTheme(theme === "dark" ? "light" : "dark")
+                    }
+                    className="border-2 border-black px-2 py-1 rounded-2xl hover:cursor-pointer flex text-black mt-2"
+                  >
+                    {theme === "dark" ? "Light" : "Dark"} Mode
+                  </button>
+                  <button
                     onClick={handleLogOut}
                     className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-100"
                   >
@@ -249,7 +270,7 @@ const Navbar = () => {
               <div className="space-y-1 px-2">
                 <Link
                   to="/auth/login"
-                  className="block w-[20%] border rounded-md px-3 py-2 text-center text-base font-medium text-gray-700 hover:bg-gray-100"
+                  className="dark:text-white block w-[20%] border rounded-md px-3 py-2 text-center text-base font-medium text-gray-700 hover:bg-gray-100"
                 >
                   Login
                 </Link>

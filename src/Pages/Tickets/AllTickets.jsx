@@ -126,11 +126,11 @@ const AllTickets = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+          <div className="dark:*:text-white">
             <h1 className="text-2xl font-bold text-slate-900">All Tickets</h1>
             <p className="mt-1 text-sm text-slate-500">
               Search, filter, and sort tickets to find the best option for you.

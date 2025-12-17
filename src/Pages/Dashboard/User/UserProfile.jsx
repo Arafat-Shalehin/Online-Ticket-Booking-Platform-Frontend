@@ -145,7 +145,7 @@ const UserProfile = () => {
       <div className="max-w-6xl mx-auto text-slate-100">
         {/* Section header */}
         <div className="mb-6">
-          <h2 className="text-slate-900/80 text-2xl md:text-3xl font-semibold tracking-tight">
+          <h2 className="text-slate-900/80 text-2xl md:text-3xl font-semibold tracking-tight dark:text-white">
             User Profile
           </h2>
           <p className="mt-1 text-sm text-slate-400">

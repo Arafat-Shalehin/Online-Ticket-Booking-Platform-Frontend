@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 // import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useApiMutation from "../../../Hooks/useApiMutation";
 import useAuthProfile from "../../../Hooks/useAuthProfile";
+import Loader from "../../../Components/Common/Loader";
 
 const perksOptions = [
   "AC",
@@ -22,12 +23,13 @@ const imageHostingUrl = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
 const AddTicket = () => {
   const { mutateAsync: addTicket } = useApiMutation();
-  const { user, loading, setLoading } = useAuth();
+  const { user } = useAuth();
   const { userDetails } = useAuthProfile();
   // console.log(userDetails);
   const [serverError, setServerError] = useState("");
   const [progress, setProgress] = useState(0);
   const [vendorFraud, setVendorFraud] = useState(false);
+  const [addLoad, setAddLoad] = useState(false);
   // const axiosSecure = useAxiosSecure();
 
   // console.log(user);
@@ -41,7 +43,7 @@ const AddTicket = () => {
 
   // Loader Logic
   useEffect(() => {
-    if (!loading) return;
+    if (!addLoad) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -51,12 +53,12 @@ const AddTicket = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [loading]);
+  }, [addLoad]);
 
   // Handle POST to DB
   const onSubmit = async (data) => {
     try {
-      setLoading(true);
+      setAddLoad(true);
       setServerError("");
 
       if (userDetails?.isFraud === true) {
@@ -117,11 +119,11 @@ const AddTicket = () => {
       setServerError(msg);
       toast.error(msg);
     } finally {
-      setLoading(false);
+      setAddLoad(false);
     }
   };
 
-  if (loading) {
+  if (addLoad) {
     return (
       <div className="flex items-center justify-center bg-white">
         <Loader
@@ -373,10 +375,10 @@ const AddTicket = () => {
         <div className="pt-2">
           <button
             type="submit"
-            disabled={loading || vendorFraud}
+            disabled={addLoad || vendorFraud}
             className="inline-flex items-center justify-center px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? "Adding..." : "Add Ticket"}
+            {addLoad ? "Adding..." : "Add Ticket"}
           </button>
         </div>
       </form>
