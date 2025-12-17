@@ -262,18 +262,18 @@ Configure environment variables in your hosting platform.
 
 ✅ Features Checklist (Spec Compliance)
 
-- **User, Vendor, Admin roles
-- **Auth with email/password + Google
-- **Protected routes with persistent login
-- **Bookings with pending/accepted/rejected/paid lifecycle
-- **Stripe payment integration (Redirect to Stripe Checkout)
-- **Transaction history
-- **Vendor dashboard: Add Ticket, My Tickets, Requested Bookings, Revenue Overview
-- **Admin dashboard: Manage Tickets, Manage Users, Advertise Tickets
-- **Advertised tickets on homepage (max 6)
-- **Search / Filter / Sort / Pagination on All Tickets
-- **Dark/Light mode
-- **Responsive and consistent UI
+- User, Vendor, Admin roles
+- Auth with email/password + Google
+- Protected routes with persistent login
+- Bookings with pending/accepted/rejected/paid lifecycle
+- Stripe payment integration (Redirect to Stripe Checkout)
+- Transaction history
+- Vendor dashboard: Add Ticket, My Tickets, Requested Bookings, Revenue Overview
+- Admin dashboard: Manage Tickets, Manage Users, Advertise Tickets
+- Advertised tickets on homepage (max 6)
+- Search / Filter / Sort / Pagination on All Tickets
+- Dark/Light mode
+- Responsive and consistent UI
 
 ## 📄 License
 This project was built for educational purposes.
