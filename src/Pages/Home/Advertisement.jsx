@@ -68,7 +68,7 @@ const Advertisement = () => {
               Featured Tickets
             </h2>
             <p className="mt-1 max-w-xl text-sm text-slate-500">
-              Exactly {tickets.length} curated offers, hand‑picked by our travel
+              Exactly {tickets?.length} curated offers, hand‑picked by our travel
               experts for this week.
             </p>
           </div>

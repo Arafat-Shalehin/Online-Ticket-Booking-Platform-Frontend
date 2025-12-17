@@ -5,7 +5,7 @@ import useAuth from "./useAuth";
 import { useNavigate } from "react-router";
 
 const axiosSecure = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "http://online-icket-booking-platform-backe.vercel.app",
 });
 
 const useAxiosSecure = () => {

@@ -225,7 +225,7 @@ VITE_appId=your_firebase_app_id
 VITE_IMGBB_KEY=your_imgbb_api_key
 
 # Backend URL (if different from localhost)
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://online-icket-booking-platform-backe.vercel.app
 🚀 Running the Client Locally
 Bash
 
