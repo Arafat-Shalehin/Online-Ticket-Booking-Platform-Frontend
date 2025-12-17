@@ -85,7 +85,7 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "user/my-booked-tickets/dashboard/payment/:ticketId",
+        path: "payment/:ticketId",
         element: (
           <PrivateRoute>
             <Payment />

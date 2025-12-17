@@ -1,34 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useSearchParams } from "react-router";
-// import useAxiosSecure from "../../../Hooks/useAxiosSecure";
-
-// const PaymentSuccess = () => {
-//   const [searchParams] = useSearchParams();
-//   const sessionId = searchParams.get("session_d");
-//   console.log(sessionId);
-//   const [paymentInfo, setPaymentInfo] = useState({});
-//   const axiosSecure = useAxiosSecure();
-
-//   useEffect(() => {
-//     if (sessionId) {
-//       axiosSecure
-//         .patch(`/payment-success?session_id=${sessionId}`)
-//         .then((res) => {
-//           console.log(res.data);
-//           setPaymentInfo({ transactionId: res.data.transactionId });
-//         });
-//     }
-//   }, [sessionId, axiosSecure]);
-//   return (
-//     <div>
-//       <h1>Payment SuccessFul</h1>
-//       <p>Your Transaction ID: {paymentInfo?.transactionId}</p>
-//     </div>
-//   );
-// };
-
-// export default PaymentSuccess;
-
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
@@ -36,7 +5,7 @@ import Loader from "../../../Components/Common/Loader";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get("session_id"); // ✅ fix name
+  const sessionId = searchParams.get("session_id");
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
 
@@ -114,7 +83,7 @@ const PaymentSuccess = () => {
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-emerald-200/70 dark:border-emerald-700/60 p-6 text-center">
+      <div className="max-w-xl w-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-emerald-200/70 dark:border-emerald-700/60 p-6 text-center">
         <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
           <span className="text-2xl text-emerald-600">✓</span>
         </div>

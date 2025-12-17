@@ -108,7 +108,8 @@ import {
 import { toast } from "react-toastify";
 
 const Payment = () => {
-  const { bookingId } = useParams();
+  const { ticketId } = useParams();
+  // console.log(ticketId);
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
@@ -121,8 +122,8 @@ const Payment = () => {
     isError,
     error,
     refetch,
-  } = useFetchData(["booking", bookingId], `/bookings/${bookingId}`, {
-    enabled: !!bookingId && !!user?.email && !loading,
+  } = useFetchData(["booking", ticketId], `/bookings/${ticketId}`, {
+    enabled: !!ticketId && !!user?.email && !loading,
   });
 
   // Loader Logic
@@ -134,7 +135,7 @@ const Payment = () => {
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  if (!bookingId) {
+  if (!ticketId) {
     return (
       <div className="max-w-xl mx-auto mt-10 text-center">
         <p className="text-red-600 font-medium">
@@ -211,7 +212,7 @@ const Payment = () => {
     try {
       setPaying(true);
       const res = await axiosSecure.post("/create-checkout-session", {
-        bookingId,
+        ticketId,
       });
       window.location.href = res.data.url;
     } catch (err) {
@@ -227,7 +228,7 @@ const Payment = () => {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-10">
-      <div className="w-full max-w-3xl rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+      <div className="w-full max-w-5xl rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Left: booking summary */}
           <div className="relative h-56 md:h-full">
@@ -269,7 +270,7 @@ const Payment = () => {
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Booking ID:{" "}
                 <span className="font-mono text-[11px]">
-                  {bookingId?.slice(-8)}
+                  {ticketId?.slice(-8)}
                 </span>
               </p>
             </div>

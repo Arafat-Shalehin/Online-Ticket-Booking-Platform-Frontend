@@ -4,8 +4,8 @@ const PaymentCancelled = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-6 text-center">
+    <div className="min-h-[60vh] flex items-center justify-center dark:bg-slate-950">
+      <div className="max-w-2xl w-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-6 text-center">
         <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center">
           <span className="text-2xl text-amber-600">!</span>
         </div>

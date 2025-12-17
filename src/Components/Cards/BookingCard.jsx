@@ -17,6 +17,7 @@ import { Link } from "react-router";
 const BookingCard = ({ booking, index, onPay, isPaying }) => {
   const {
     _id,
+    ticketId,
     title,
     image,
     from,
@@ -163,11 +164,7 @@ const BookingCard = ({ booking, index, onPay, isPaying }) => {
 
           {status === "accepted" && (
             <Link
-              to={
-                canPay
-                  ? `/dashboard/payment/${_id}` 
-                  : "#"
-              }
+              to={canPay ? `/dashboard/payment/${ticketId}` : "#"}
               onClick={(e) => {
                 if (!canPay) e.preventDefault();
                 handlePayClick();
