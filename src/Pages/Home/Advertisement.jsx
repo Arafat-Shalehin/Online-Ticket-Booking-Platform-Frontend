@@ -4,14 +4,14 @@ import useSixTickets from "../../QueryOptions/UserFunctions/sixTicketQuery";
 import Loader from "../../Components/Common/Loader";
 
 const Advertisement = () => {
-  const { data: tickets, isFetching, isError } = useSixTickets();
+  const { data: tickets = [], isLoading, isError } = useSixTickets();
   // console.log(tickets);
 
   // Loader progress code
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (!isFetching) return;
+    if (!isLoading) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -21,9 +21,9 @@ const Advertisement = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isFetching]);
+  }, [isLoading]);
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center bg-white">
         <Loader
@@ -34,6 +34,24 @@ const Advertisement = () => {
       </div>
     );
   }
+
+  if (!isLoading && !isError && tickets.length === 0) {
+    return (
+      <div className="my-10 flex flex-col items-center text-center">
+        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+          <span className="text-3xl">📢</span>
+        </div>
+        <h3 className="text-lg font-semibold text-slate-800 mb-1">
+          No featured tickets yet
+        </h3>
+        <p className="text-sm text-slate-500 max-w-sm">
+          Check back soon—our admins will highlight top deals here as they
+          become available.
+        </p>
+      </div>
+    );
+  }
+
   if (isError)
     return (
       <p className="flex justify-center items-center text-2xl text-red-400 font-semibold">
