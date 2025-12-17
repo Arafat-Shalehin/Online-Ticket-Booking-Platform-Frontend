@@ -246,6 +246,7 @@ Retrieves the current Firebase user via getAuth().currentUser
 Attaches their ID token as Authorization: Bearer <token>
 Backend validates this token with Firebase Admin SDK and sets req.decoded_email.
 Role checks (User/Vendor/Admin) are enforced on the server side.
+
 🌐 Deployment
 You can deploy this frontend to:
 
@@ -258,20 +259,23 @@ Be sure to:
 Add your production domain in Firebase Auth authorized domains.
 Set the correct VITE_API_BASE_URL to your deployed backend URL.
 Configure environment variables in your hosting platform.
+
 ✅ Features Checklist (Spec Compliance)
-User, Vendor, Admin roles
-Auth with email/password + Google
-Protected routes with persistent login
-Bookings with pending/accepted/rejected/paid lifecycle
-Stripe payment integration (Redirect to Stripe Checkout)
-Transaction history
-Vendor dashboard: Add Ticket, My Tickets, Requested Bookings, Revenue Overview
-Admin dashboard: Manage Tickets, Manage Users, Advertise Tickets
-Advertised tickets on homepage (max 6)
-Search / Filter / Sort / Pagination on All Tickets
-Dark/Light mode
-Responsive and consistent UI
-📄 License
+
+- **User, Vendor, Admin roles
+- **Auth with email/password + Google
+- **Protected routes with persistent login
+- **Bookings with pending/accepted/rejected/paid lifecycle
+- **Stripe payment integration (Redirect to Stripe Checkout)
+- **Transaction history
+- **Vendor dashboard: Add Ticket, My Tickets, Requested Bookings, Revenue Overview
+- **Admin dashboard: Manage Tickets, Manage Users, Advertise Tickets
+- **Advertised tickets on homepage (max 6)
+- **Search / Filter / Sort / Pagination on All Tickets
+- **Dark/Light mode
+- **Responsive and consistent UI
+
+## 📄 License
 This project was built for educational purposes.
 You may adapt it for learning and portfolio projects; please give credit if you use major parts of the design or logic.
 ```
