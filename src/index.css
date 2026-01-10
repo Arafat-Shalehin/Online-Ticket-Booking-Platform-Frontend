@@ -1,60 +1,67 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* DaisyUI theme bridge (kept minimal; aligns with our tokens below)
+   If you rely heavily on DaisyUI component colors, we can expand this later. */
 @plugin "daisyui/theme" {
-  --color-primary: white;
-  --color-secondary: #1b211a;
+  --color-primary: #0d9488; /* Teal */
+  --color-secondary: #0f172a; /* Slate-900 */
 }
+
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tw-animate-css";
+
+/* Global font (kept as-is from your file) */
 * {
   font-family: "Roboto Condensed", sans-serif;
 }
 
-:root {
-  --bg: #ffffff;
-  --text: #000000;
-}
-
-.dark {
-  --bg: #111827;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
+/* Tailwind v4 dark variant helper (you already had this) */
 @custom-variant dark (&:is(.dark *));
 
+/* --------------------------------------------------------------------------
+   Tailwind token wiring (shadcn-style)
+   These map Tailwind color utilities like bg-background, text-foreground, etc.
+   -------------------------------------------------------------------------- */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
   --color-destructive: var(--destructive);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -65,80 +72,148 @@ body {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* --------------------------------------------------------------------------
+   TicketBari Palette (Premium / calm)
+   Light theme
+   -------------------------------------------------------------------------- */
 :root {
+  color-scheme: light;
+
+  /* Shape */
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+
+  /* Neutrals */
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Brand */
+  --primary: #0d9488; /* teal-600 */
+  --primary-foreground: #ffffff;
+
+  /* Secondary surfaces/buttons */
+  --secondary: #f1f5f9; /* slate-100 */
+  --secondary-foreground: #0f172a;
+
+  /* Muted */
+  --muted: #f1f5f9; /* slate-100 */
+  --muted-foreground: #475569; /* slate-600 */
+
+  /* Accent (used sparingly) */
+  --accent: #eef2ff; /* indigo-50 */
+  --accent-foreground: #312e81; /* indigo-900-ish */
+
+  /* Destructive */
+  --destructive: #dc2626; /* red-600 */
+
+  /* Borders / inputs / focus ring */
+  --border: #e2e8f0; /* slate-200 */
+  --input: #e2e8f0; /* input border */
+  --ring: #14b8a6; /* teal-500 focus ring */
+
+  /* Dashboard sidebar tokens */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0d9488;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #14b8a6;
+
+  /* Charts (Recharts) — calm, consistent with brand + statuses */
+  --chart-1: #0d9488; /* primary teal */
+  --chart-2: #4f46e5; /* indigo */
+  --chart-3: #f59e0b; /* amber (warning) */
+  --chart-4: #16a34a; /* green (success) */
+  --chart-5: #dc2626; /* red (danger) */
+
+  /* Optional: semantic status tokens for your StatusBadge/alerts later */
+  --tb-success: #16a34a;
+  --tb-warning: #f59e0b;
+  --tb-danger: #dc2626;
+  --tb-info: #0284c7;
+
+  /* Back-compat aliases (in case you used these elsewhere) */
+  --bg: var(--background);
+  --text: var(--foreground);
 }
 
+/* --------------------------------------------------------------------------
+   Dark theme
+   -------------------------------------------------------------------------- */
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  color-scheme: dark;
+
+  --background: #0b1220; /* deep navy */
+  --foreground: #e2e8f0; /* slate-200 */
+
+  --card: #0f172a; /* slate-900 */
+  --card-foreground: #e2e8f0;
+
+  --popover: #111c33; /* surface-2 */
+  --popover-foreground: #e2e8f0;
+
+  /* Brand in dark: slightly brighter teal reads better */
+  --primary: #14b8a6; /* teal-500 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #111c33;
+  --secondary-foreground: #e2e8f0;
+
+  --muted: #111c33;
+  --muted-foreground: #94a3b8; /* slate-400 */
+
+  --accent: #1e1b4b; /* indigo-950 */
+  --accent-foreground: #e0e7ff; /* indigo-100 */
+
+  --destructive: #ef4444; /* red-500 (better in dark) */
+
+  --border: #25324a; /* custom slate border */
+  --input: #25324a;
+  --ring: #2dd4bf; /* teal-400 */
+
+  --sidebar: #0f172a;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #14b8a6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #111c33;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #25324a;
+  --sidebar-ring: #2dd4bf;
+
+  --chart-1: #14b8a6;
+  --chart-2: #818cf8; /* softer indigo for dark charts */
+  --chart-3: #fbbf24;
+  --chart-4: #22c55e;
+  --chart-5: #f87171;
+
+  --tb-success: #22c55e;
+  --tb-warning: #fbbf24;
+  --tb-danger: #f87171;
+  --tb-info: #38bdf8;
+
+  --bg: var(--background);
+  --text: var(--foreground);
 }
 
+/* Base layer: consistent borders + body colors via Tailwind tokens */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
+}
+
+/* Optional: premium selection highlight */
+::selection {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
 }

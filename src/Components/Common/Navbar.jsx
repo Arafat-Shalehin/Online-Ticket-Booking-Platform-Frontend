@@ -1,164 +1,206 @@
-import React, { useState } from "react";
-import { FaBusAlt, FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
-import useAuth from "../../Hooks/useAuth";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { FaBars, FaBusAlt, FaChevronDown, FaTimes } from "react-icons/fa";
 import { Link, NavLink } from "react-router";
-import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import useUserDetails from "../../QueryOptions/UserFunctions/getUserDetails";
+import { toast } from "react-toastify";
+
+import useAuth from "../../Hooks/useAuth";
 import useTheme from "../../Hooks/useTheme";
+import useUserDetails from "../../QueryOptions/UserFunctions/getUserDetails";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const userMenuRef = useRef(null);
+
   const { user, logoutUser } = useAuth();
   const { theme, setTheme } = useTheme();
-  // console.log(user);
   const { userDetails } = useUserDetails();
-  // console.log(userDetails);
 
-  const handleLogOut = () => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You will be log out from this website!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Log Out!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        logoutUser()
-          .then((result) => {
-            // console.log(result);
-            toast.success("LogOut Successful.");
-            setMobileMenuOpen(false);
-            setUserMenuOpen(false);
-          })
-          .catch((error) => {
-            console.log(error);
-            toast.error("LogOut Failed. Please try again later.");
-          });
-      }
-    });
-  };
+  const navItems = useMemo(
+    () => [
+      { to: "/", label: "Home" },
+      { to: "/all-tickets", label: "All Tickets" },
+      { to: "/dashboard", label: "Dashboard" },
+    ],
+    []
+  );
+
+  const displayName = user?.displayName || userDetails?.name || "Account";
+  const profileHref = userDetails?.role
+    ? `/dashboard/${userDetails.role}/profile`
+    : "/dashboard";
 
   const closeMenus = () => {
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
   };
 
+  // Close dropdowns on outside click / Escape (premium + predictable)
+  useEffect(() => {
+    const onDocMouseDown = (e) => {
+      if (!userMenuOpen) return;
+      if (!userMenuRef.current) return;
+      if (!userMenuRef.current.contains(e.target)) setUserMenuOpen(false);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeMenus();
+    };
+
+    document.addEventListener("mousedown", onDocMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onDocMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [userMenuOpen]);
+
+  const handleLogOut = () => {
+    // Theme-aware styling for SweetAlert2 (until we replace with a unified Dialog)
+    const isDark = theme === "dark";
+
+    Swal.fire({
+      title: "Log out?",
+      text: "You will be signed out from TicketBari.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, log out",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#0d9488", // teal
+      cancelButtonColor: "#dc2626", // red
+      background: isDark ? "#0f172a" : "#ffffff",
+      color: isDark ? "#e2e8f0" : "#0f172a",
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      logoutUser()
+        .then(() => {
+          toast.success("Logged out successfully.");
+          closeMenus();
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Logout failed. Please try again later.");
+        });
+    });
+  };
+
+  const desktopLinkClass = ({ isActive }) =>
+    [
+      "inline-flex h-16 items-center border-b-2 px-1 text-sm font-medium transition-colors",
+      isActive
+        ? "border-primary text-foreground"
+        : "border-transparent text-muted-foreground hover:text-foreground hover:border-border",
+    ].join(" ");
+
+  const mobileLinkClass = ({ isActive }) =>
+    [
+      "block rounded-md px-3 py-2 text-base font-medium transition-colors",
+      isActive
+        ? "bg-muted text-foreground"
+        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+    ].join(" ");
+
   return (
-    <nav className="border-b shadow-sm">
+    <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left: Logo */}
-          <div className="flex items-center">
-            <a href="/" className="flex items-center">
-              <FaBusAlt className="mr-2 h-7 w-7 text-indigo-600" />
-              <span className="text-xl dark:text-white font-bold text-gray-900">
-                TicketBari
-              </span>
-            </a>
-          </div>
+          <Link to="/" className="flex items-center gap-2">
+            <FaBusAlt className="h-6 w-6 text-primary" />
+            <span className="text-lg font-semibold tracking-tight text-foreground">
+              TicketBari
+            </span>
+          </Link>
 
           {/* Center: Desktop menu */}
-          <div className="hidden md:flex md:items-center md:space-x-6 dark:*:text-white">
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold"
-                  : "text-sm font-medium text-gray-700 hover:text-indigo-600"
-              }
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/all-tickets"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold"
-                  : "text-sm font-medium text-gray-700 hover:text-indigo-600"
-              }
-            >
-              All Tickets
-            </NavLink>
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-sm text-gray-700 hover:text-indigo-600 border-b font-bold"
-                  : "text-sm font-medium text-gray-700 hover:text-indigo-600"
-              }
-            >
-              Dashboard
-            </NavLink>
+          <div className="hidden md:flex md:items-center md:gap-6">
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to} className={desktopLinkClass}>
+                {item.label}
+              </NavLink>
+            ))}
           </div>
 
-          {/* Right: Desktop user / auth actions */}
-          <div className="hidden md:flex md:items-center md:space-x-4 relative">
+          {/* Right: Actions */}
+          <div className="hidden md:flex md:items-center md:gap-2">
+            {/* Theme toggle always available */}
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              aria-label="Toggle theme"
+              title="Toggle theme"
+            >
+              {theme === "dark" ? "Light" : "Dark"}
+            </button>
+
             {!user ? (
               <>
                 <Link
                   to="/auth/login"
-                  // onClick={handleLogin}
-                  className="text-sm font-medium text-gray-700 hover:bg-gray-400/50 hover:text-white hover:font-bold transition-colors duration-150 border rounded px-4 py-2 cursor-pointer dark:text-white"
+                  className="inline-flex items-center justify-center rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Login
                 </Link>
                 <Link
                   to="/auth/register"
-                  // onClick={handleRegister}
-                  className="text-white px-4 py-1 border rounded bg-indigo-500 cursor-pointer hover:scale-105 transition-all duration-300"
+                  className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Register
                 </Link>
               </>
             ) : (
-              <div className="relative z-10">
+              <div className="relative" ref={userMenuRef}>
                 <button
-                  onClick={() => setUserMenuOpen((prev) => !prev)}
-                  className="flex items-center rounded-full border border-transparent px-2 py-1 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  type="button"
+                  onClick={() => {
+                    setUserMenuOpen((prev) => !prev);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-2 py-1 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  aria-haspopup="menu"
+                  aria-expanded={userMenuOpen}
                 >
-                  <img
-                    src={user?.photoURL}
-                    alt="User avatar"
-                    className="h-8 w-8 rounded-full object-cover"
-                  />
-                  <span className="ml-2 text-sm font-medium text-gray-700 dark:*:text-white">
-                    {user?.displayName || userDetails?.name}
+                  {user?.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="User avatar"
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="grid h-8 w-8 place-items-center rounded-full bg-muted text-sm font-semibold text-foreground">
+                      {displayName?.slice(0, 1)?.toUpperCase() || "U"}
+                    </div>
+                  )}
+
+                  <span className="max-w-[160px] truncate text-foreground">
+                    {displayName}
                   </span>
-                  <FaChevronDown className="ml-1 h-3 w-3 text-gray-500" />
+                  <FaChevronDown className="h-3 w-3 text-muted-foreground" />
                 </button>
 
-                {/* User dropdown (desktop) */}
                 {userMenuOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-40 
-                    rounded-md bg-white py-1 shadow-lg 
-                    ring-1 ring-black ring-opacity-5 text-center"
-                    onMouseLeave={() => setUserMenuOpen(false)}
+                    className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg"
+                    role="menu"
                   >
                     <Link
-                      to={`/dashboard/${userDetails?.role}/profile`}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      to={profileHref}
+                      className="block rounded-sm px-3 py-2 text-sm hover:bg-muted focus:bg-muted"
                       onClick={closeMenus}
+                      role="menuitem"
                     >
                       My Profile
                     </Link>
+
                     <button
-                      onClick={() =>
-                        setTheme(theme === "dark" ? "light" : "dark")
-                      }
-                      className="border-2 border-black px-2 py-1 rounded-2xl hover:cursor-pointer flex text-black mx-auto mt-2"
-                    >
-                      {theme === "dark" ? "Light" : "Dark"} Mode
-                    </button>
-                    <button
+                      type="button"
                       onClick={handleLogOut}
-                      className="border rounded px-4 py-2 
-                      text-left text-sm text-gray-700 
-                      hover:bg-gray-50 mt-2 hover:cursor-pointer"
+                      className="block w-full rounded-sm px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+                      role="menuitem"
                     >
                       Logout
                     </button>
@@ -168,115 +210,104 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile: Hamburger button */}
+          {/* Mobile: Hamburger */}
           <div className="flex items-center md:hidden">
             <button
               type="button"
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              onClick={() => {
+                setMobileMenuOpen((prev) => !prev);
+                setUserMenuOpen(false);
+              }}
+              className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               aria-controls="mobile-menu"
               aria-expanded={mobileMenuOpen}
             >
-              <span className="sr-only">Open main menu</span>
+              <span className="sr-only">Toggle main menu</span>
               {mobileMenuOpen ? (
-                <FaTimes className="block h-6 w-6" />
+                <FaTimes className="h-6 w-6" />
               ) : (
-                <FaBars className="block h-6 w-6" />
+                <FaBars className="h-6 w-6" />
               )}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu panel */}
+      {/* Mobile panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden" id="mobile-menu">
-          <div className="space-y-1 px-2 pt-2 pb-3">
-            <NavLink
-              onClick={() => setMobileMenuOpen(false)}
-              to="/"
-              className={({ isActive }) =>
-                isActive
-                  ? "block w-[20%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b"
-                  : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
-              }
-            >
-              Home
-            </NavLink>
-            <NavLink
-              onClick={() => setMobileMenuOpen(false)}
-              to="/all-tickets"
-              className={({ isActive }) =>
-                isActive
-                  ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b"
-                  : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
-              }
-            >
-              All Tickets
-            </NavLink>
-            <NavLink
-              onClick={() => setMobileMenuOpen(false)}
-              to="/dashboard"
-              className={({ isActive }) =>
-                isActive
-                  ? "block w-[23%] rounded-md px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-100 border-b"
-                  : "block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
-              }
-            >
-              Dashboard
-            </NavLink>
+        <div id="mobile-menu" className="md:hidden border-t border-border">
+          <div className="space-y-1 px-4 py-3">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={mobileLinkClass}
+                onClick={closeMenus}
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </div>
 
-          <div className="border-t border-gray-200 pt-4 pb-3">
+          <div className="border-t border-border px-4 py-3">
+            {/* Theme toggle (mobile) */}
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="mb-3 inline-flex w-full items-center justify-center rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {theme === "dark" ? "Light" : "Dark"} Mode
+            </button>
+
             {user ? (
-              <>
-                <div className="flex items-center px-4">
-                  <img
-                    className="h-10 w-10 rounded-full object-cover"
-                    src={user?.photoURL}
-                    alt="User avatar"
-                  />
-                  <div className="ml-3">
-                    <div className="text-base font-medium text-gray-800">
-                      {user?.displayName || userDetails?.name}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  {user?.photoURL ? (
+                    <img
+                      className="h-10 w-10 rounded-full object-cover"
+                      src={user.photoURL}
+                      alt="User avatar"
+                    />
+                  ) : (
+                    <div className="grid h-10 w-10 place-items-center rounded-full bg-muted text-base font-semibold text-foreground">
+                      {displayName?.slice(0, 1)?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-foreground">
+                      {displayName}
                     </div>
                   </div>
                 </div>
-                <div className="mt-3 space-y-1 px-2">
-                  <Link
-                    to={`/dashboard/${userDetails?.role}/profile`}
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
-                    onClick={closeMenus}
-                  >
-                    My Profile
-                  </Link>
-                  <button
-                    onClick={() =>
-                      setTheme(theme === "dark" ? "light" : "dark")
-                    }
-                    className="border-2 border-black px-2 py-1 rounded-2xl hover:cursor-pointer flex text-black mt-2"
-                  >
-                    {theme === "dark" ? "Light" : "Dark"} Mode
-                  </button>
-                  <button
-                    onClick={handleLogOut}
-                    className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </>
+
+                <Link
+                  to={profileHref}
+                  className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  onClick={closeMenus}
+                >
+                  My Profile
+                </Link>
+
+                <button
+                  onClick={handleLogOut}
+                  className="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-destructive hover:bg-destructive/10"
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
-              <div className="space-y-1 px-2">
+              <div className="space-y-2">
                 <Link
                   to="/auth/login"
-                  className="dark:text-white block w-[20%] border rounded-md px-3 py-2 text-center text-base font-medium text-gray-700 hover:bg-gray-100"
+                  className="block rounded-md border border-border bg-background px-3 py-2 text-center text-sm font-medium text-foreground hover:bg-muted"
+                  onClick={closeMenus}
                 >
                   Login
                 </Link>
                 <Link
                   to="/auth/register"
-                  className="block w-[20%] rounded-md px-3 py-2 text-center text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                  className="block rounded-md bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground hover:opacity-95"
+                  onClick={closeMenus}
                 >
                   Register
                 </Link>

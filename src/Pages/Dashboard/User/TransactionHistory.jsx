@@ -67,7 +67,7 @@ const TransactionHistory = () => {
   return (
     <div className="max-w-7xl mx-auto py-10">
       {/* Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-2 sm:px-0">
         <div>
           <h2 className="text-2xl md:text-3xl font-semibold text-slate-800 dark:text-slate-100">
             Transaction History

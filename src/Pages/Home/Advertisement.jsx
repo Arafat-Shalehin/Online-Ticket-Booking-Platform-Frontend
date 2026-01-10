@@ -1,86 +1,117 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import EachTickets from "../../Components/Cards/EachTickets";
 import useSixTickets from "../../QueryOptions/UserFunctions/sixTicketQuery";
 import Loader from "../../Components/Common/Loader";
+import AdvertisementSkeleton from "../../Components/skeletons/AdvertisementSkeleton";
 
 const Advertisement = () => {
-  const { data: tickets = [], isLoading, isError } = useSixTickets();
-  // console.log(tickets);
-
-  // Loader progress code
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    if (!isLoading) return;
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        return prev + 5;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isLoading]);
+  const {
+    data: tickets = [],
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+  } = useSixTickets();
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center bg-white">
-        <Loader
-          message="Finding Available Tickets..."
-          subMessage="Accessing tickets chosen by admin..."
-          progress={progress}
-        />
-      </div>
-    );
+    return <AdvertisementSkeleton count={6} />;
   }
 
-  if (!isLoading && !isError && tickets.length === 0) {
+  if (!isError && tickets.length === 0) {
     return (
-      <div className="my-10 flex flex-col items-center text-center">
-        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-          <span className="text-3xl">📢</span>
+      <section className="w-full bg-background py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-xl border border-border bg-card p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-muted text-lg">
+              <span aria-hidden>📢</span>
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">
+              No featured tickets yet
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              Check back soon—our admins will highlight top deals here as they
+              become available.
+            </p>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-slate-800 mb-1">
-          No featured tickets yet
-        </h3>
-        <p className="text-sm text-slate-500 max-w-sm">
-          Check back soon—our admins will highlight top deals here as they
-          become available.
-        </p>
-      </div>
+      </section>
     );
   }
 
-  if (isError)
+  if (isError) {
     return (
-      <p className="flex justify-center items-center text-2xl text-red-400 font-semibold">
-        Failed to load tickets
-      </p>
+      <section className="w-full bg-background py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm font-medium text-destructive">
+                Failed to load featured tickets.
+                <span className="font-normal text-destructive/80">
+                  {" "}
+                  Please try again.
+                </span>
+              </p>
+
+              {typeof refetch === "function" && (
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  className="btn btn-sm btn-primary"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     );
+  }
+
   return (
-    <section className="bg-[#E3E3E3] py-12 sm:py-10 mt-5">
+    <section className="w-full bg-muted/30 py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">
-              Featured Tickets
-            </h2>
-            <p className="mt-1 max-w-xl text-sm text-slate-500">
-              Exactly {tickets?.length} curated offers, hand‑picked by our travel
-              experts for this week.
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                Featured Tickets
+              </h2>
+              {isFetching && (
+                <span
+                  className="loading loading-spinner loading-sm text-primary"
+                  aria-label="Refreshing featured tickets"
+                />
+              )}
+            </div>
+
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              {tickets.length} curated offers, hand‑picked by our admins.
             </p>
           </div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-500">
-            Limited availability
-          </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary ring-1 ring-primary/15">
+              Limited availability
+            </span>
+
+            {/* Adjust this route if your list page uses a different path */}
+            <Link to="/tickets" className="btn btn-sm btn-ghost">
+              View all
+            </Link>
+          </div>
         </div>
 
-        {/* Grid of 6 tickets */}
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {tickets.map((ticket, index) => (
-            <EachTickets key={index} ticket={ticket} index={index} />
+            <EachTickets
+              key={ticket?._id ?? `${index}-${ticket?.title ?? "ticket"}`}
+              ticket={ticket}
+              index={index}
+            />
           ))}
         </div>
       </div>

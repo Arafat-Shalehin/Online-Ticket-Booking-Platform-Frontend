@@ -50,7 +50,15 @@ const BookingCard = ({ booking, index, onPay, isPaying }) => {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4, ease: "easeOut" }}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm shadow-slate-200/60 ring-1 ring-transparent transition-all duration-300 hover:shadow-xl hover:shadow-sky-200/60 hover:ring-sky-200/80 dark:border-slate-800/80 dark:bg-slate-900/80 dark:shadow-none dark:hover:border-sky-500/50 dark:hover:ring-sky-500/40"
+      className="w-fit sm:w-full group flex flex-col overflow-hidden 
+      rounded-2xl border border-slate-200/70 
+      bg-white/80 shadow-sm shadow-slate-200/60 
+      ring-1 ring-transparent transition-all duration-300 
+      hover:shadow-xl hover:shadow-sky-200/60 
+      hover:ring-sky-200/80 dark:border-slate-800/80 
+      dark:bg-slate-900/80 dark:shadow-none 
+      dark:hover:border-sky-500/50 
+      dark:hover:ring-sky-500/40"
     >
       {/* Image */}
       <div className="relative h-40 overflow-hidden">
