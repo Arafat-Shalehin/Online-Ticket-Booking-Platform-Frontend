@@ -1,39 +1,136 @@
-import { useState, useMemo } from "react";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import useAuth from "../../Hooks/useAuth";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import useAuth from "../../Hooks/useAuth";
 import formatDateTime from "../Common/formatDateTime";
+
+const clampInt = (n, min, max) => {
+  const x = Math.trunc(Number(n));
+  if (!Number.isFinite(x)) return min;
+  return Math.min(max, Math.max(min, x));
+};
+
+const formatMoney = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return n.toFixed(2);
+};
 
 const BookNowModal = ({ isOpen, onClose, ticket }) => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
 
+  const dialogRef = useRef(null);
+  const firstFieldRef = useRef(null);
+
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  const maxQuantity = ticket.ticketQuantity ?? ticket.quantity ?? 0; // fallback for safety
+  const maxQuantityRaw = ticket?.ticketQuantity ?? ticket?.quantity ?? 0;
+  const maxQuantity = Number.isFinite(Number(maxQuantityRaw))
+    ? Math.max(0, Math.trunc(Number(maxQuantityRaw)))
+    : 0;
 
   const departureDateTime = ticket?.departureDateTime || ticket?.departureTime;
 
   const departure = useMemo(() => {
-    return departureDateTime ? new Date(departureDateTime) : null;
+    if (!departureDateTime) return null;
+    const d = new Date(departureDateTime);
+    return Number.isNaN(d.getTime()) ? null : d;
   }, [departureDateTime]);
 
   const { isSoldOut, hasDeparted } = useMemo(() => {
     const now = new Date();
     return {
       isSoldOut: maxQuantity <= 0,
-      hasDeparted: departure ? departure <= now : false,
+      hasDeparted: departure ? departure.getTime() <= now.getTime() : false,
     };
   }, [maxQuantity, departure]);
+
+  const price = Number(ticket?.price);
+  const priceText = formatMoney(ticket?.price);
+  const totalText =
+    Number.isFinite(price) && Number.isFinite(Number(quantity))
+      ? formatMoney(price * Number(quantity))
+      : "—";
+
+  // Reset state per open/ticket (prevents stale errors/success/quantity)
+  useEffect(() => {
+    if (!isOpen) return;
+    setQuantity(1);
+    setError("");
+    setSuccessMsg("");
+    setSubmitting(false);
+  }, [isOpen, ticket?._id]);
+
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
+
+  // Focus + Escape + basic focus trap
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // focus first interactive element
+    setTimeout(() => {
+      firstFieldRef.current?.focus?.();
+    }, 0);
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (!submitting) onClose?.();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+      if (!dialogRef.current) return;
+
+      const focusables = dialogRef.current.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusables.length) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, onClose, submitting]);
 
   if (!isOpen || !ticket) return null;
 
   const isDisabled = submitting || isSoldOut || hasDeparted || !user?.email;
+
+  const title = ticket?.title || "Ticket";
+  const from = ticket?.from || "—";
+  const to = ticket?.to || "—";
+
+  const helperText = isSoldOut
+    ? "No tickets remaining for this trip."
+    : hasDeparted
+    ? "Departure time has passed. Booking is closed."
+    : `You can book up to ${maxQuantity} tickets.`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,12 +141,10 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
       setError("You must be logged in to book tickets.");
       return;
     }
-
     if (isSoldOut) {
       setError("This ticket is sold out.");
       return;
     }
-
     if (hasDeparted) {
       setError(
         "Departure time has passed. You can no longer book this ticket."
@@ -57,13 +152,7 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
       return;
     }
 
-    const numQty = Number(quantity);
-
-    if (!numQty || numQty < 1) {
-      setError("Please enter a valid quantity (at least 1).");
-      return;
-    }
-
+    const numQty = clampInt(quantity, 1, Math.max(1, maxQuantity));
     if (numQty > maxQuantity) {
       setError(`You cannot book more than ${maxQuantity} tickets.`);
       return;
@@ -88,14 +177,23 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
           "Your booking request has been created. Awaiting vendor approval."
         );
 
+        // Refresh relevant cached data
         queryClient.invalidateQueries({
           queryKey: ["booked-tickets"],
           exact: false,
         });
+        queryClient.invalidateQueries({
+          queryKey: ["ticket", ticket._id],
+          exact: false,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["all-tickets"],
+          exact: false,
+        });
 
         setTimeout(() => {
-          onClose();
-        }, 600);
+          onClose?.();
+        }, 400);
       } else {
         setError(res.data?.message || "Could not create booking.");
       }
@@ -107,46 +205,63 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-slate-200/80">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 backdrop-blur-sm"
+      onMouseDown={() => {
+        if (!submitting) onClose?.();
+      }}
+      aria-hidden={false}
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Book tickets for ${title}`}
+        className="mx-4 w-full max-w-md rounded-xl border border-border bg-card text-card-foreground shadow-lg"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
               Book Tickets
             </h2>
-            <p className="mt-1 text-xs text-slate-500">
-              {ticket.title} • {ticket.from} → {ticket.to}
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              {title} • {from} → {to}
             </p>
-            {departure && (
-              <p className="mt-0.5 text-[11px] text-slate-400">
+            {departureDateTime ? (
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
                 Departure: {formatDateTime(departureDateTime)}
               </p>
-            )}
+            ) : null}
           </div>
+
           <button
             type="button"
-            onClick={onClose}
-            className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            onClick={() => !submitting && onClose?.()}
+            className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+            aria-label="Close booking modal"
+            disabled={submitting}
           >
-            <span className="sr-only">Close</span>✕
+            ✕
           </button>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600">
+            <span className="text-muted-foreground">
               Price per ticket:{" "}
-              <span className="font-semibold">
-                ${Number(ticket.price).toFixed(2)}
+              <span className="font-semibold text-foreground">
+                {priceText === "—" ? "—" : `$${priceText}`}
               </span>
             </span>
-            <span className="text-xs text-slate-500">
+
+            <span className="text-xs text-muted-foreground">
               Available:{" "}
               <span
                 className={`font-semibold ${
-                  isSoldOut ? "text-rose-600" : "text-emerald-600"
+                  isSoldOut ? "text-destructive" : "text-foreground"
                 }`}
               >
                 {maxQuantity}
@@ -154,55 +269,111 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
             </span>
           </div>
 
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>Total (est.):</span>
+            <span className="font-semibold text-foreground">
+              {totalText === "—" ? "—" : `$${totalText}`}
+            </span>
+          </div>
+
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Ticket Quantity
             </label>
-            <input
-              type="number"
-              min={1}
-              max={maxQuantity}
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              disabled={isDisabled}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
-            />
-            <p className="mt-1 text-[11px] text-slate-400">
-              {isSoldOut
-                ? "No tickets remaining for this trip."
-                : hasDeparted
-                ? "Departure time has passed. Booking is closed."
-                : `You can book up to ${maxQuantity} tickets.`}
+
+            <div className="flex items-stretch gap-2">
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() =>
+                  setQuantity((q) =>
+                    clampInt(Number(q) - 1, 1, Math.max(1, maxQuantity))
+                  )
+                }
+                disabled={isDisabled || Number(quantity) <= 1}
+              >
+                −
+              </button>
+
+              <input
+                ref={firstFieldRef}
+                type="number"
+                min={1}
+                max={maxQuantity}
+                step={1}
+                inputMode="numeric"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                onBlur={() => {
+                  // clamp on blur (keeps typing flexible)
+                  setQuantity((q) => clampInt(q, 1, Math.max(1, maxQuantity)));
+                }}
+                disabled={isDisabled}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-60"
+                aria-label="Ticket quantity"
+              />
+
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() =>
+                  setQuantity((q) =>
+                    clampInt(Number(q) + 1, 1, Math.max(1, maxQuantity))
+                  )
+                }
+                disabled={isDisabled || Number(quantity) >= maxQuantity}
+              >
+                +
+              </button>
+            </div>
+
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {helperText}
             </p>
           </div>
 
-          {error && (
-            <div className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+          {error ? (
+            <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
               {error}
             </div>
-          )}
-          {successMsg && (
-            <div className="rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+          ) : null}
+
+          {successMsg ? (
+            <div className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-xs text-primary">
               {successMsg}
             </div>
-          )}
+          ) : null}
+
+          {!user?.email ? (
+            <p className="text-[11px] text-muted-foreground">
+              Please{" "}
+              <Link
+                to="/auth/login"
+                className="font-medium text-primary hover:underline"
+              >
+                log in
+              </Link>{" "}
+              to book tickets.
+            </p>
+          ) : null}
 
           <div className="flex items-center justify-end gap-2 pt-2">
             <button
               type="button"
-              onClick={onClose}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+              onClick={() => !submitting && onClose?.()}
+              className="btn btn-sm btn-ghost"
               disabled={submitting}
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={isDisabled}
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+              className="btn btn-sm btn-primary"
             >
               {submitting
-                ? "Booking..."
+                ? "Booking…"
                 : hasDeparted
                 ? "Booking Closed"
                 : isSoldOut
@@ -210,12 +381,6 @@ const BookNowModal = ({ isOpen, onClose, ticket }) => {
                 : "Confirm Booking"}
             </button>
           </div>
-
-          {!user?.email && (
-            <p className="pt-1 text-[11px] text-amber-600">
-              Please log in to book tickets.
-            </p>
-          )}
         </form>
       </div>
     </div>

@@ -1,183 +1,231 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useDeferredValue, useMemo, useState } from "react";
 import TicketCard from "../../Components/Cards/TicketCard";
 import useAllTickets from "../../QueryOptions/UserFunctions/allTicketQuery";
-import Loader from "../../Components/Common/Loader";
+import AllTicketsSkeleton from "../../Components/skeletons/AllTicketsSkeleton";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZES = [6, 9];
+
+const safeLower = (v) => (typeof v === "string" ? v.toLowerCase() : "");
+const safeNumber = (v) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+const getPageItems = (current, total) => {
+  // returns array of numbers and "…" for ellipsis
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const items = new Set([1, total, current, current - 1, current + 1]);
+  const pages = Array.from(items)
+    .filter((p) => p >= 1 && p <= total)
+    .sort((a, b) => a - b);
+
+  const out = [];
+  for (let i = 0; i < pages.length; i++) {
+    const p = pages[i];
+    const prev = pages[i - 1];
+    if (i > 0 && p - prev > 1) out.push("…");
+    out.push(p);
+  }
+  return out;
+};
 
 const AllTickets = () => {
-  const { data, isFetching, isError } = useAllTickets();
+  const query = useAllTickets();
+  const tickets = query.data ?? [];
+
+  // v4/v5 safe initial loading detection
+  const isInitialLoading = query.isPending ?? query.isLoading;
+
   const [searchFrom, setSearchFrom] = useState("");
   const [searchTo, setSearchTo] = useState("");
   const [transportFilter, setTransportFilter] = useState("all");
-  const [sortOrder, setSortOrder] = useState("none"); // 'low-high' | 'high-low' | 'none'
+  const [sortOrder, setSortOrder] = useState("none"); // low-high | high-low | none
+  const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [progress, setProgress] = useState(0);
 
-  const tickets = data;
-  //  console.log(tickets);
+  // Defer text input to keep typing smooth on large lists
+  const deferredFrom = useDeferredValue(searchFrom);
+  const deferredTo = useDeferredValue(searchTo);
 
-  useEffect(() => {
-    if (!isFetching) return;
+  const transportTypes = useMemo(() => {
+    const types = new Set();
+    for (const t of tickets) {
+      if (t?.transportType) types.add(t.transportType);
+    }
+    return ["all", ...Array.from(types)];
+  }, [tickets]);
 
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        return prev + 10;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isFetching]);
-
-  // Unique transport types for filter dropdown
-  const transportTypes = useMemo(
-    () => ["all", ...Array.from(new Set(tickets.map((t) => t.transportType)))],
-    [tickets]
-  );
-
-  // Derived list: search -> filter -> sort
   const processedTickets = useMemo(() => {
-    let result = [...tickets];
+    let result = Array.isArray(tickets) ? [...tickets] : [];
 
-    // Search by From
-    if (searchFrom.trim()) {
-      const query = searchFrom.trim().toLowerCase();
-      result = result.filter((t) => t.from.toLowerCase().includes(query));
+    const fromQ = deferredFrom.trim().toLowerCase();
+    const toQ = deferredTo.trim().toLowerCase();
+
+    if (fromQ) {
+      result = result.filter((t) => safeLower(t?.from).includes(fromQ));
     }
 
-    // Search by To
-    if (searchTo.trim()) {
-      const query = searchTo.trim().toLowerCase();
-      result = result.filter((t) => t.to.toLowerCase().includes(query));
+    if (toQ) {
+      result = result.filter((t) => safeLower(t?.to).includes(toQ));
     }
 
-    // Filter by transport type
     if (transportFilter !== "all") {
-      result = result.filter((t) => t.transportType === transportFilter);
+      result = result.filter((t) => t?.transportType === transportFilter);
     }
 
-    // Sort by price
     if (sortOrder === "low-high") {
-      result.sort((a, b) => a.price - b.price);
+      result.sort(
+        (a, b) =>
+          (safeNumber(a?.price) ?? Infinity) -
+          (safeNumber(b?.price) ?? Infinity)
+      );
     } else if (sortOrder === "high-low") {
-      result.sort((a, b) => b.price - a.price);
+      result.sort(
+        (a, b) =>
+          (safeNumber(b?.price) ?? -Infinity) -
+          (safeNumber(a?.price) ?? -Infinity)
+      );
     }
 
     return result;
-  }, [tickets, searchFrom, searchTo, transportFilter, sortOrder]);
+  }, [tickets, deferredFrom, deferredTo, transportFilter, sortOrder]);
 
-  //   Loading and error
-  if (isFetching) {
+  // Initial load: skeleton
+  if (isInitialLoading) return <AllTicketsSkeleton count={pageSize} />;
+
+  // Error
+  if (query.isError) {
     return (
-      <div className="flex items-center justify-center bg-white">
-        <Loader
-          message="Finding All Available Tickets..."
-          subMessage="Accessing admin approved tickets..."
-          progress={progress}
-        />
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm font-medium text-destructive">
+                Failed to load tickets. Please try again.
+              </p>
+              <button
+                type="button"
+                onClick={() => query.refetch()}
+                className="btn btn-sm btn-primary"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
-  if (isError)
-    return (
-      <p className="mt-50 flex justify-center items-center text-2xl text-red-400 font-semibold">
-        Failed to load tickets
-      </p>
-    );
 
   // Pagination
-  const totalPages = Math.max(
-    1,
-    Math.ceil(processedTickets.length / PAGE_SIZE)
-  );
+  const totalPages = Math.max(1, Math.ceil(processedTickets.length / pageSize));
   const currentPageSafe = Math.min(currentPage, totalPages);
-  const startIndex = (currentPageSafe - 1) * PAGE_SIZE;
+  const startIndex = (currentPageSafe - 1) * pageSize;
   const currentPageTickets = processedTickets.slice(
     startIndex,
-    startIndex + PAGE_SIZE
+    startIndex + pageSize
   );
 
-  const handleSearchFromChange = (e) => {
-    setSearchFrom(e.target.value);
-    setCurrentPage(1);
-  };
+  const pageItems = getPageItems(currentPageSafe, totalPages);
 
-  const handleSearchToChange = (e) => {
-    setSearchTo(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleTransportFilterChange = (e) => {
-    setTransportFilter(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleSortChange = (e) => {
-    setSortOrder(e.target.value);
+  const resetFilters = () => {
+    setSearchFrom("");
+    setSearchTo("");
+    setTransportFilter("all");
+    setSortOrder("none");
     setCurrentPage(1);
   };
 
   const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="dark:*:text-white">
-            <h1 className="text-2xl font-bold text-slate-900">All Tickets</h1>
-            <p className="mt-1 text-sm text-slate-500">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                All Tickets
+              </h1>
+              {query.isFetching && (
+                <span
+                  className="loading loading-spinner loading-sm text-primary"
+                  aria-label="Refreshing tickets"
+                />
+              )}
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
               Search, filter, and sort tickets to find the best option for you.
             </p>
           </div>
+
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="btn btn-sm btn-ghost"
+          >
+            Clear filters
+          </button>
         </div>
 
-        {/* Controls: Search, Filter, Sort */}
-        <div className="mt-6 rounded-xl bg-white p-4 shadow-sm sm:p-5">
-          <div className="grid gap-4 md:grid-cols-4">
+        {/* Controls */}
+        <div className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+          <div className="grid gap-4 md:grid-cols-5">
             {/* From */}
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 From
               </label>
               <input
                 type="text"
                 value={searchFrom}
-                onChange={handleSearchFromChange}
+                onChange={(e) => {
+                  setSearchFrom(e.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="e.g. Dhaka"
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Search by origin"
               />
             </div>
 
             {/* To */}
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 To
               </label>
               <input
                 type="text"
                 value={searchTo}
-                onChange={handleSearchToChange}
+                onChange={(e) => {
+                  setSearchTo(e.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="e.g. Chittagong"
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Search by destination"
               />
             </div>
 
-            {/* Transport Type Filter */}
+            {/* Transport */}
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Transport Type
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Transport
               </label>
               <select
                 value={transportFilter}
-                onChange={handleTransportFilterChange}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                onChange={(e) => {
+                  setTransportFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Filter by transport type"
               >
                 {transportTypes.map((type) => (
                   <option key={type} value={type}>
@@ -187,34 +235,74 @@ const AllTickets = () => {
               </select>
             </div>
 
-            {/* Sort by Price */}
+            {/* Sort */}
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Sort by Price
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Sort by price
               </label>
               <select
                 value={sortOrder}
-                onChange={handleSortChange}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                onChange={(e) => {
+                  setSortOrder(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Sort tickets by price"
               >
                 <option value="none">Default</option>
-                <option value="low-high">Low to High</option>
-                <option value="high-low">High to Low</option>
+                <option value="low-high">Low → High</option>
+                <option value="high-low">High → Low</option>
+              </select>
+            </div>
+
+            {/* Page size */}
+            <div>
+              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Per page
+              </label>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                aria-label="Tickets per page"
+              >
+                {PAGE_SIZES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
         </div>
 
-        {/* Tickets Grid */}
+        {/* Grid / Empty */}
         <div className="mt-6">
           {currentPageTickets.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm text-slate-500">
-              No tickets found for the selected criteria.
+            <div className="rounded-xl border border-border bg-card px-6 py-10 text-center">
+              <p className="text-sm font-medium text-foreground">
+                No tickets found
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Try changing your search, filter, or sort options.
+              </p>
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="btn btn-sm btn-primary"
+                >
+                  Clear filters
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {currentPageTickets.map((ticket) => (
-                <TicketCard key={ticket._id} ticket={ticket} />
+                <TicketCard key={ticket?._id} ticket={ticket} />
               ))}
             </div>
           )}
@@ -223,39 +311,57 @@ const AllTickets = () => {
         {/* Pagination */}
         {processedTickets.length > 0 && (
           <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               Showing{" "}
-              <span className="font-semibold">
+              <span className="font-semibold text-foreground">
                 {startIndex + 1}-
-                {Math.min(startIndex + PAGE_SIZE, processedTickets.length)}
+                {Math.min(startIndex + pageSize, processedTickets.length)}
               </span>{" "}
               of{" "}
-              <span className="font-semibold">{processedTickets.length}</span>{" "}
-              tickets
+              <span className="font-semibold text-foreground">
+                {processedTickets.length}
+              </span>
             </p>
 
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => goToPage(currentPageSafe - 1)}
                 disabled={currentPageSafe === 1}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm disabled:cursor-not-allowed disabled:text-slate-300"
+                className="btn btn-sm"
               >
                 Previous
               </button>
 
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }).map((_, index) => {
-                  const page = index + 1;
+              <div className="join">
+                {pageItems.map((item, idx) => {
+                  if (item === "…") {
+                    return (
+                      <button
+                        key={`ellipsis-${idx}`}
+                        type="button"
+                        className="btn btn-sm join-item"
+                        disabled
+                        aria-hidden="true"
+                      >
+                        …
+                      </button>
+                    );
+                  }
+
+                  const page = item;
                   const isActive = page === currentPageSafe;
+
                   return (
                     <button
                       key={page}
+                      type="button"
                       onClick={() => goToPage(page)}
-                      className={`h-8 w-8 rounded-lg text-xs font-semibold ${
-                        isActive
-                          ? "bg-blue-600 text-white shadow-sm"
-                          : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
-                      }`}
+                      className={[
+                        "btn btn-sm join-item",
+                        isActive ? "btn-primary" : "btn-ghost",
+                      ].join(" ")}
+                      aria-current={isActive ? "page" : undefined}
                     >
                       {page}
                     </button>
@@ -264,9 +370,10 @@ const AllTickets = () => {
               </div>
 
               <button
+                type="button"
                 onClick={() => goToPage(currentPageSafe + 1)}
                 disabled={currentPageSafe === totalPages}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm disabled:cursor-not-allowed disabled:text-slate-300"
+                className="btn btn-sm"
               >
                 Next
               </button>

@@ -1,3 +1,20 @@
+import React from "react";
+
+const FALLBACK_AVATAR =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='52%25' dominant-baseline='middle' text-anchor='middle' fill='%23475569' font-size='18' font-family='Arial'%3EUser%3C/text%3E%3C/svg%3E";
+
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+
+const formatDate = (createdAt) => {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 const ReviewCard = ({
   name,
   avatar,
@@ -8,61 +25,77 @@ const ReviewCard = ({
   createdAt,
   verified,
 }) => {
-  const date = new Date(createdAt);
-  const formattedDate = isNaN(date)
-    ? ""
-    : date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
+  const safeName = (name || "Anonymous").trim() || "Anonymous";
+  const safeTripType = tripType || "Trip";
+  const safeRoute = route || "—";
+  const safeReview = review || "";
+  const formattedDate = formatDate(createdAt);
+
+  const ratingNum = Number(rating);
+  const ratingSafe = Number.isFinite(ratingNum) ? clamp(ratingNum, 0, 5) : null;
+  const ratingRounded = ratingSafe == null ? 0 : Math.round(ratingSafe);
 
   return (
-    <article className="mx-3 w-80 shrink-0 rounded-2xl border border-slate-800 bg-linear-to-br from-slate-900/90 via-slate-900/80 to-slate-950/90 p-5 shadow-lg shadow-black/40 backdrop-blur-sm">
+    <article className="w-80 shrink-0 rounded-xl border border-border bg-card p-5 shadow-sm">
       {/* Top: avatar + name + meta */}
       <div className="mb-3 flex items-center gap-3">
         <img
-          src={avatar}
-          alt={name}
-          className="h-11 w-11 rounded-full border border-slate-700 object-cover shadow-md shadow-black/40"
+          src={avatar || FALLBACK_AVATAR}
+          alt={`${safeName} avatar`}
+          className="h-11 w-11 rounded-full object-cover ring-1 ring-border"
           loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            e.currentTarget.src = FALLBACK_AVATAR;
+          }}
         />
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <p className="text-sm font-semibold text-white">{name}</p>
-            {verified && (
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-400 border border-emerald-500/30">
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <p className="truncate text-sm font-semibold text-foreground">
+              {safeName}
+            </p>
+
+            {verified ? (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary ring-1 ring-primary/20">
                 Verified
               </span>
-            )}
+            ) : null}
           </div>
-          <p className="text-xs text-slate-400">
-            {tripType} · <span className="text-slate-300">{route}</span>
+
+          <p className="text-xs text-muted-foreground">
+            {safeTripType} ·{" "}
+            <span className="text-foreground/80">{safeRoute}</span>
           </p>
         </div>
       </div>
 
       {/* Review text */}
-      <p className="text-sm leading-relaxed text-slate-200">{review}</p>
+      <p className="text-sm leading-relaxed text-muted-foreground">
+        {safeReview}
+      </p>
 
       {/* Bottom: rating + date */}
-      <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-        <div className="flex items-center gap-1">
+      <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center gap-1" aria-label="Rating">
           {Array.from({ length: 5 }).map((_, i) => (
             <span
               key={i}
               className={
-                i < Math.round(rating) ? "text-amber-400" : "text-slate-700"
+                i < ratingRounded ? "text-chart-3" : "text-muted-foreground/30"
               }
+              aria-hidden="true"
             >
               ★
             </span>
           ))}
-          <span className="ml-1 text-amber-300 font-medium">
-            {rating.toFixed(1)}
+
+          <span className="ml-2 font-medium text-foreground/80">
+            {ratingSafe == null ? "—" : ratingSafe.toFixed(1)}
           </span>
         </div>
-        {formattedDate && <span>{formattedDate}</span>}
+
+        {formattedDate ? <span>{formattedDate}</span> : null}
       </div>
     </article>
   );

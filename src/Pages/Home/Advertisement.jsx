@@ -108,9 +108,11 @@ const Advertisement = () => {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {tickets.map((ticket, index) => (
             <EachTickets
-              key={ticket?._id ?? `${index}-${ticket?.title ?? "ticket"}`}
+              key={ticket?._id ?? index}
               ticket={ticket}
               index={index}
+              badgeLabel="Featured"
+              badgeTone="primary"
             />
           ))}
         </div>

@@ -1,226 +1,306 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+
 import useAuth from "../../Hooks/useAuth";
-import useCreateUser from "../../QueryOptions/UserFunctions/createUser";
-import Loader from "../../Components/Common/Loader";
+
+const getAuthErrorMessage = (error) => {
+  const code = error?.code;
+
+  switch (code) {
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/user-disabled":
+      return "This account has been disabled. Please contact support.";
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+    case "auth/invalid-credential":
+      return "Invalid email or password.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please try again later or reset your password.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your connection and try again.";
+    default:
+      return error?.message || "Login failed. Please try again.";
+  }
+};
 
 const Login = () => {
-  const { signInUser, googleLogin, loading, setLoading } = useAuth();
+  const { signInUser, loading, setLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const createUser = useCreateUser();
-  const [progress, setProgress] = useState(0);
 
-  const from = location.state?.from?.pathname || "/";
+  const [showPassword, setShowPassword] = useState(false);
+
+  const redirectTo = useMemo(() => {
+    const from = location.state?.from?.pathname;
+    // Avoid redirect loops back into auth pages
+    if (!from || from.startsWith("/auth")) return "/dashboard";
+    return from;
+  }, [location.state]);
+
+  const demoAdmin = useMemo(
+    () => ({
+      email: import.meta.env.VITE_DEMO_ADMIN_EMAIL,
+      password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD,
+    }),
+    []
+  );
+
+  const demoVendor = useMemo(
+    () => ({
+      email: import.meta.env.VITE_DEMO_VENDOR_EMAIL,
+      password: import.meta.env.VITE_DEMO_VENDOR_PASSWORD,
+    }),
+    []
+  );
 
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm({
+    mode: "onTouched",
+    defaultValues: { email: "", password: "" },
+  });
 
-  // Handle Email/Password Login
+  const busy = loading || isSubmitting;
+
+  const doLogin = async ({ email, password }, successLabel = "Logged in") => {
+    clearErrors("root");
+
+    try {
+      setLoading(true);
+      await signInUser(email, password);
+
+      toast.success(successLabel);
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      const message = getAuthErrorMessage(error);
+      setError("root", { type: "server", message });
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onSubmit = async (data) => {
-    try {
-      setLoading(true);
-      const result = await signInUser(data.email, data.password);
-      setLoading(false);
-      // console.log(result.user.email);
-      toast.success("Logged in successfully");
-      navigate(from, { replace: true });
-    } catch (error) {
-      if (error.code === "auth/user-not-found") {
-        toast.error("No user found with this email, Kindly Register.");
-        return;
-      }
-
-      if (error.code === "auth/wrong-password") {
-        toast.error("Incorrect password. Please try again.");
-        return;
-      }
-    }
-  };
-
-  // Handle Google Login
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      const result = await googleLogin();
-      const firebaseUser = result.user;
-
-      const userProfile = {
-        name: firebaseUser.displayName,
-        email: firebaseUser.email,
-        photoURL: firebaseUser.photoURL,
-      };
-
-      const userGoogleInfo = await createUser(userProfile);
-      // console.log(userGoogleInfo);
-
-      setLoading(false);
-
-      toast.success("Google Login Successful.");
-      navigate(from, { replace: true });
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-      toast.error("Google Login Failed, Please Try again later.");
-    }
-  };
-
-  // Loader Logic
-  useEffect(() => {
-    if (!loading) return;
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        return prev + 5;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [loading]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center bg-white">
-        <Loader
-          message="Login is on process..."
-          subMessage="Taking to your desire route..."
-          progress={progress}
-        />
-      </div>
+    return doLogin(
+      { email: data.email, password: data.password },
+      "Logged in successfully."
     );
-  }
+  };
+
+  const handleDemoAdmin = async () => {
+    if (!demoAdmin.email || !demoAdmin.password) {
+      toast.error("Demo Admin credentials are not configured.");
+      return;
+    }
+    return doLogin(
+      { email: demoAdmin.email, password: demoAdmin.password },
+      "Logged in as Demo Admin."
+    );
+  };
+
+  const handleDemoVendor = async () => {
+    if (!demoVendor.email || !demoVendor.password) {
+      toast.error("Demo Vendor credentials are not configured.");
+      return;
+    }
+    return doLogin(
+      { email: demoVendor.email, password: demoVendor.password },
+      "Logged in as Demo Vendor."
+    );
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-center mb-3">
-          Welcome Back To TicketBari
-        </h1>
-        <h2 className="text-2xl font-semibold text-center mb-6">Login Now</h2>
-
-        {/* Login Form */}
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          {/* Email */}
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="you@example.com"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Please enter a valid email",
-                },
-              })}
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.email.message}
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            {/* Header */}
+            <div className="mb-6 space-y-2 text-center">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                Welcome back
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Log in to manage bookings and continue your journey with
+                TicketBari.
               </p>
-            )}
-          </div>
+            </div>
 
-          {/* Password */}
-          <div className="mb-2">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+            {/* Demo buttons */}
+            <div className="mb-5 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={handleDemoAdmin}
+                disabled={busy}
+                className="btn btn-sm btn-secondary"
+              >
+                {busy ? "Please wait…" : "Demo Login: Admin"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDemoVendor}
+                disabled={busy}
+                className="btn btn-sm btn-secondary"
+              >
+                {busy ? "Please wait…" : "Demo Login: Vendor"}
+              </button>
+            </div>
+
+            {/* Root error */}
+            {errors.root?.message ? (
+              <div
+                className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                role="alert"
+              >
+                {errors.root.message}
+              </div>
+            ) : null}
+
+            {/* Form */}
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-4"
             >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="********"
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-              })}
-            />
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.password.message}
-              </p>
-            )}
+              {/* Email */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  disabled={busy}
+                  aria-invalid={!!errors.email}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-60"
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Please enter a valid email",
+                    },
+                  })}
+                />
+                {errors.email?.message ? (
+                  <p className="text-xs text-destructive">
+                    {errors.email.message}
+                  </p>
+                ) : null}
+              </div>
+
+              {/* Password */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Password
+                </label>
+
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    disabled={busy}
+                    aria-invalid={!!errors.password}
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-60"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters",
+                      },
+                    })}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute inset-y-0 right-1 my-1 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    disabled={busy}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+
+                {errors.password?.message ? (
+                  <p className="text-xs text-destructive">
+                    {errors.password.message}
+                  </p>
+                ) : null}
+              </div>
+
+              {/* Forgot password */}
+              <div className="flex items-center justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={busy}
+                className="btn btn-primary w-full"
+                aria-busy={busy}
+              >
+                {busy ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span
+                      className="loading loading-spinner loading-sm"
+                      aria-hidden="true"
+                    />
+                    Logging in…
+                  </span>
+                ) : (
+                  "Login"
+                )}
+              </button>
+            </form>
+
+            {/* Footer */}
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              Don&apos;t have an account?{" "}
+              <Link
+                to="/auth/register"
+                className="font-medium text-primary hover:underline"
+              >
+                Register
+              </Link>
+            </p>
+
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              Prefer Google sign-in? It’s available on the Register page.
+            </p>
           </div>
 
-          {/* Forgot password link */}
-          <div className="mb-4 flex justify-end">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-
-          {/* Root error (e.g., invalid credentials) */}
-          {errors.root && (
-            <p className="mb-3 text-sm text-red-600">{errors.root.message}</p>
+          {/* Optional note for devs */}
+          {(!demoAdmin.email || !demoVendor.email) && (
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Demo buttons require VITE_DEMO_* credentials in your env file.
+            </p>
           )}
-
-          {/* Login button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
-          >
-            {isSubmitting ? "Logging in..." : "Login"}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="mt-6 flex items-center">
-          <div className="grow border-t border-gray-300" />
-          <span className="mx-2 text-gray-500 text-sm">or</span>
-          <div className="grow border-t border-gray-300" />
         </div>
-
-        {/* Google Login */}
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          className="mt-4 w-full flex items-center justify-center gap-2 border border-gray-300 py-2.5 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          <span className="text-sm font-medium text-gray-700">
-            Continue with Google
-          </span>
-        </button>
-
-        {/* Register Link */}
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Don&apos;t have an account?{" "}
-          <Link
-            to="/auth/register"
-            className="text-blue-600 font-medium hover:underline"
-          >
-            Register
-          </Link>
-        </p>
       </div>
     </div>
   );

@@ -12,7 +12,19 @@ const formatMoney = (value) => {
   return n.toFixed(2);
 };
 
-const EachTickets = ({ ticket, index = 0 }) => {
+// badgeTone: "primary" | "accent" | "secondary"
+const badgeToneClasses = {
+  primary: "bg-primary text-primary-foreground",
+  accent: "bg-accent text-accent-foreground ring-1 ring-border",
+  secondary: "bg-secondary text-secondary-foreground ring-1 ring-border",
+};
+
+const EachTickets = ({
+  ticket,
+  index = 0,
+  badgeLabel, // e.g. "Featured" | "New"
+  badgeTone = "primary",
+}) => {
   const reduceMotion = useReducedMotion();
 
   const title = ticket?.title || "Ticket";
@@ -29,12 +41,12 @@ const EachTickets = ({ ticket, index = 0 }) => {
 
   const toDetails = ticket?._id ? `/ticket/${ticket._id}` : "/tickets";
 
+  const footerLabel =
+    badgeLabel?.toLowerCase() === "new" ? "Recently added" : "Featured offer";
+
   return (
     <motion.article
-      className={[
-        "group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm",
-        "transition-shadow hover:shadow-md",
-      ].join(" ")}
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
       initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
@@ -58,7 +70,6 @@ const EachTickets = ({ ticket, index = 0 }) => {
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
 
-          {/* Calm overlay for text legibility */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
 
           {/* Badges */}
@@ -67,12 +78,18 @@ const EachTickets = ({ ticket, index = 0 }) => {
               {transportType}
             </span>
 
-            <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground">
-              Featured
-            </span>
+            {badgeLabel ? (
+              <span
+                className={[
+                  "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                  badgeToneClasses[badgeTone] ?? badgeToneClasses.primary,
+                ].join(" ")}
+              >
+                {badgeLabel}
+              </span>
+            ) : null}
           </div>
 
-          {/* Bottom title */}
           <div className="absolute inset-x-4 bottom-3">
             <p className="line-clamp-1 text-sm font-semibold text-background">
               {title}
@@ -83,7 +100,6 @@ const EachTickets = ({ ticket, index = 0 }) => {
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        {/* Title + price */}
         <div className="mb-3 flex items-start justify-between gap-3">
           <Link
             to={toDetails}
@@ -102,7 +118,6 @@ const EachTickets = ({ ticket, index = 0 }) => {
           </div>
         </div>
 
-        {/* Meta */}
         <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground">
           <span>
             {soldOut ? (
@@ -131,7 +146,6 @@ const EachTickets = ({ ticket, index = 0 }) => {
           </span>
         </div>
 
-        {/* Perks */}
         {visiblePerks.length > 0 && (
           <ul className="mb-5 flex flex-wrap gap-2">
             {visiblePerks.map((perk) => (
@@ -150,17 +164,12 @@ const EachTickets = ({ ticket, index = 0 }) => {
           </ul>
         )}
 
-        {/* Footer */}
         <div className="mt-auto flex items-center justify-between border-t border-border pt-3">
           <span className="text-[11px] text-muted-foreground">
-            Featured offer
+            {footerLabel}
           </span>
 
-          <Link
-            to={toDetails}
-            className="btn btn-sm btn-primary"
-            aria-label={`See details for ${title}`}
-          >
+          <Link to={toDetails} className="btn btn-sm btn-primary">
             See details <RiArrowRightSLine size={18} />
           </Link>
         </div>

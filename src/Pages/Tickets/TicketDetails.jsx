@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { format } from "date-fns";
+import React, { useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { format, isValid } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+
 import useCountdown from "../../Hooks/useCountdown";
-import BookNowModal from "../../Components/Common/BookNowModal";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import Loader from "../../Components/Common/Loader";
+import BookNowModal from "../../Components/Common/BookNowModal";
+import TicketDetailsSkeleton from "../../Components/skeletons/TicketDetailsSkeleton";
+
 import {
   Card,
   CardContent,
@@ -20,93 +23,153 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "../../Components/ui/tooltip";
-import { ScrollArea } from "../../Components/ui/scroll-area";
 
-// icons
 import {
   Clock,
   MapPin,
   Users,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
   Tag,
   Usb,
   Wifi,
   Coffee,
   Airplay,
+  ArrowLeft,
 } from "lucide-react";
+
+const FALLBACK_IMAGE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'%3E%3Crect width='1200' height='675' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23475569' font-size='32' font-family='Arial'%3ETwitter image unavailable%3C/text%3E%3C/svg%3E";
+
+const formatMoney = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return n.toFixed(2);
+};
+
+const perkIcon = (perk) => {
+  const lower = (perk || "").toLowerCase();
+  if (lower.includes("wifi")) return <Wifi className="h-4 w-4" />;
+  if (lower.includes("ac") || lower.includes("air"))
+    return <Airplay className="h-4 w-4" />;
+  if (lower.includes("snack") || lower.includes("coffee"))
+    return <Coffee className="h-4 w-4" />;
+  if (lower.includes("usb")) return <Usb className="h-4 w-4" />;
+  return <Tag className="h-4 w-4" />;
+};
+
+const StatusPill = ({ tone = "neutral", children }) => {
+  const classes =
+    tone === "success"
+      ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+      : tone === "danger"
+      ? "bg-destructive/10 text-destructive ring-1 ring-destructive/20"
+      : tone === "warning"
+      ? "bg-chart-3/15 text-foreground ring-1 ring-border"
+      : "bg-muted text-muted-foreground ring-1 ring-border";
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${classes}`}
+    >
+      {children}
+    </span>
+  );
+};
+
+const MiniTimeBox = ({ label, value }) => (
+  <div className="flex flex-col items-center">
+    <div className="min-w-[2.4rem] rounded-md bg-foreground text-background px-2 py-1 text-center text-xs font-semibold tabular-nums">
+      {String(value).padStart(2, "0")}
+    </div>
+    <span className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+      {label}
+    </span>
+  </div>
+);
 
 const TicketDetails = () => {
   const { id } = useParams();
   const axiosSecure = useAxiosSecure();
-  const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [progress, setProgress] = useState(0);
 
-  // Data of specific id
-  useEffect(() => {
-    const fetchTicket = async () => {
-      try {
-        setLoading(true);
-        const res = await axiosSecure.get(`/ticket/${id}`);
-        setTicket(res.data);
-      } catch (err) {
-        setError(err?.message || "Something went wrong.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const query = useQuery({
+    queryKey: ["ticket", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/ticket/${id}`);
+      return res.data;
+    },
+    staleTime: 30_000,
+    retry: 1,
+  });
 
-    if (!id) return;
-    fetchTicket();
-  }, [id, axiosSecure]);
-
-  // loading progress
-  useEffect(() => {
-    if (!loading) return;
-    setProgress(0);
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 95) return p;
-        return p + Math.floor(Math.random() * 12) + 6; // organic progress
-      });
-    }, 180);
-    return () => clearInterval(interval);
-  }, [loading]);
+  const ticket = query.data ?? null;
+  const isInitialLoading = query.isPending ?? query.isLoading;
 
   const countdown = useCountdown(ticket?.departureDateTime);
 
-  const hasDeparted =
-    ticket && new Date(ticket?.departureDateTime).getTime() <= Date.now();
-  const isSoldOut = ticket && ticket?.ticketQuantity <= 0;
-  const isBookNowDisabled = hasDeparted || isSoldOut;
+  const derived = useMemo(() => {
+    const departure = new Date(ticket?.departureDateTime);
+    const hasDeparture = isValid(departure);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader
-          message="Loading Ticket Details..."
-          subMessage="Fetching schedule, seats and vendor data"
-          progress={Math.min(progress, 100)}
-        />
-      </div>
-    );
-  }
+    const hasDeparted = hasDeparture && departure.getTime() <= Date.now();
 
-  if (error || !ticket) {
+    const qty = Number(ticket?.ticketQuantity);
+    const hasQty = Number.isFinite(qty);
+    const isSoldOut = hasQty && qty <= 0;
+
+    const perks = Array.isArray(ticket?.perks) ? ticket.perks : [];
+
+    return {
+      title: ticket?.title || "Ticket",
+      from: ticket?.from || "—",
+      to: ticket?.to || "—",
+      transportType: ticket?.transportType || "Travel",
+      vendorName: ticket?.vendorName || "—",
+      vendorEmail: ticket?.vendorEmail || "—",
+      verificationStatus: ticket?.verificationStatus || "unknown",
+      adminApprove: !!ticket?.adminApprove,
+      advertised: !!ticket?.advertised,
+
+      qty,
+      hasQty,
+      isSoldOut,
+      hasDeparted,
+
+      departureDate: hasDeparture ? format(departure, "PPP") : "N/A",
+      departureTime: hasDeparture ? format(departure, "p") : "N/A",
+      perks,
+
+      price: formatMoney(ticket?.price),
+    };
+  }, [ticket]);
+
+  const isBookNowDisabled = derived.hasDeparted || derived.isSoldOut;
+
+  if (isInitialLoading) return <TicketDetailsSkeleton />;
+
+  if (query.isError || !ticket) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background py-10">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <Card>
             <CardHeader>
               <CardTitle>Ticket not available</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="text-sm text-destructive">
-                {error || "Ticket not found."}
+                {query.error?.message || "Ticket not found."}
               </p>
+
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={() => query.refetch()}>
+                  Retry
+                </Button>
+                <Button asChild variant="secondary">
+                  <Link to="/all-tickets">Back to all tickets</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -114,44 +177,50 @@ const TicketDetails = () => {
     );
   }
 
-  // derived formatted dates
-  const departureDateObj = new Date(ticket?.departureDateTime);
-  const departureDate = format(departureDateObj, "PPP");
-  const departureTime = format(departureDateObj, "p");
-
-  // small helper to map common perk keywords to icons
-  const perkIcon = (perk) => {
-    const lower = (perk || "").toLowerCase();
-    if (lower.includes("wifi")) return <Wifi className="mr-2 h-4 w-4" />;
-    if (lower.includes("ac") || lower.includes("air"))
-      return <Airplay className="mr-2 h-4 w-4" />;
-    if (lower.includes("snack") || lower.includes("coffee"))
-      return <Coffee className="mr-2 h-4 w-4" />;
-    if (lower.includes("usb")) return <Usb className="mr-2 h-4 w-4" />;
-    return <Tag className="mr-2 h-4 w-4" />;
-  };
+  const verificationTone =
+    derived.verificationStatus === "approved"
+      ? "success"
+      : derived.verificationStatus === "rejected"
+      ? "danger"
+      : "warning";
 
   return (
     <div className="min-h-screen bg-background py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-extrabold text-foreground">
-              {ticket.title}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+        {/* Top bar */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <Link
+              to="/all-tickets"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to all tickets
+            </Link>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                {derived.title}
+              </h1>
+
+              <StatusPill tone="neutral">{derived.transportType}</StatusPill>
+              {derived.advertised ? (
+                <StatusPill tone="success">Advertised</StatusPill>
+              ) : null}
+            </div>
+
+            <p className="text-sm text-muted-foreground">
               <MapPin className="inline-block mr-2 -mt-1 h-4 w-4 align-text-bottom" />
-              {ticket.from} → {ticket.to} • {ticket.transportType}
+              {derived.from} → {derived.to}
             </p>
           </div>
 
-          {/* Countdown (compact) */}
-          <div className="mt-2 flex items-center gap-3 rounded-lg bg-card px-4 py-3 shadow-sm sm:mt-0">
-            {countdown?.isExpired || hasDeparted ? (
+          {/* Countdown */}
+          <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+            {countdown?.isExpired || derived.hasDeparted ? (
               <div className="flex items-center gap-2">
-                <XCircle className="h-5 w-5 text-red-600" />
-                <span className="text-sm font-semibold text-red-600">
+                <XCircle className="h-5 w-5 text-destructive" />
+                <span className="text-sm font-semibold text-destructive">
                   Departure time has passed
                 </span>
               </div>
@@ -159,12 +228,12 @@ const TicketDetails = () => {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs font-medium uppercase text-muted-foreground">
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Departure in
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 font-mono text-sm">
+                <div className="flex items-center gap-2">
                   <MiniTimeBox label="D" value={countdown?.days ?? 0} />
                   <span className="text-muted-foreground">:</span>
                   <MiniTimeBox label="H" value={countdown?.hours ?? 0} />
@@ -182,15 +251,24 @@ const TicketDetails = () => {
         <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
           {/* Left column */}
           <div className="space-y-6">
-            {/* hero image */}
-            <div className="overflow-hidden rounded-2xl bg-muted shadow">
-              <img
-                src={ticket.image}
-                alt={ticket.title}
-                className="h-64 w-full object-cover transition-transform duration-300 hover:scale-105"
-              />
+            {/* Image */}
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="relative">
+                <img
+                  src={ticket?.image || FALLBACK_IMAGE}
+                  alt={derived.title}
+                  className="h-64 w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.src = FALLBACK_IMAGE;
+                  }}
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/25 via-transparent to-transparent" />
+              </div>
             </div>
 
+            {/* Route & schedule */}
             <Card>
               <CardHeader>
                 <CardTitle>Route & Schedule</CardTitle>
@@ -198,71 +276,70 @@ const TicketDetails = () => {
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="text-xs uppercase text-muted-foreground">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
                       From
                     </p>
                     <p className="mt-1 text-base text-foreground">
-                      {ticket.from}
+                      {derived.from}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs uppercase text-muted-foreground">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
                       To
                     </p>
                     <p className="mt-1 text-base text-foreground">
-                      {ticket.to}
+                      {derived.to}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs uppercase text-muted-foreground">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
                       Departure Date
                     </p>
                     <p className="mt-1 text-base text-foreground">
-                      {departureDate}
+                      {derived.departureDate}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs uppercase text-muted-foreground">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
                       Departure Time
                     </p>
                     <p className="mt-1 text-base text-foreground">
-                      {departureTime}
+                      {derived.departureTime}
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Perks */}
             <Card>
               <CardHeader>
                 <CardTitle>Perks</CardTitle>
               </CardHeader>
               <CardContent>
-                {ticket.perks?.length ? (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {ticket.perks.map((perk, i) => (
-                      <TooltipProvider key={i}>
-                        <Tooltip>
+                {derived.perks.length ? (
+                  <TooltipProvider>
+                    <div className="flex flex-wrap gap-2">
+                      {derived.perks.map((perk, i) => (
+                        <Tooltip key={`${perk}-${i}`}>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              <Badge className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm">
-                                {perkIcon(perk)}
-                                <span className="truncate max-w-[10rem]">
-                                  {perk}
-                                </span>
-                              </Badge>
-                            </div>
+                            <Badge className="inline-flex items-center gap-2 rounded-full px-3 py-1">
+                              {perkIcon(perk)}
+                              <span className="max-w-[12rem] truncate">
+                                {perk}
+                              </span>
+                            </Badge>
                           </TooltipTrigger>
                           <TooltipContent side="top">
                             <p className="text-xs">{perk}</p>
                           </TooltipContent>
                         </Tooltip>
-                      </TooltipProvider>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </TooltipProvider>
                 ) : (
                   <p className="text-sm text-muted-foreground">
                     No extras listed for this ticket.
@@ -272,18 +349,19 @@ const TicketDetails = () => {
             </Card>
           </div>
 
-          {/* Right column - Sticky purchase panel */}
-          <div className="lg:sticky lg:top-6">
+          {/* Right column */}
+          <div className="lg:sticky lg:top-6 space-y-4">
+            {/* Purchase panel */}
             <Card className="overflow-hidden">
-              <div className="bg-linear-to-b from-white to-muted/40 p-6 dark:from-slate-800 dark:to-slate-900">
-                <div className="flex items-start justify-between">
+              <div className="bg-muted/30 p-6">
+                <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs text-muted-foreground">
                       Price (per ticket)
                     </p>
                     <div className="mt-1 flex items-baseline gap-2">
-                      <span className="text-2xl font-extrabold text-foreground">
-                        ${ticket.price.toFixed(2)}
+                      <span className="text-2xl font-semibold text-foreground">
+                        {derived.price === "—" ? "—" : `$${derived.price}`}
                       </span>
                       <span className="text-sm text-muted-foreground">USD</span>
                     </div>
@@ -291,36 +369,32 @@ const TicketDetails = () => {
 
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">Seats</p>
-                    <div
-                      className={`mt-1 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
-                        isSoldOut
-                          ? "bg-destructive/10 text-destructive"
-                          : "bg-emerald-50 text-emerald-700"
-                      }`}
-                    >
-                      <Users className="h-4 w-4" />
-                      <span>{ticket.ticketQuantity}</span>
+                    <div className="mt-1 inline-flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-semibold text-foreground">
+                        {derived.hasQty ? derived.qty : "—"}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-5">
                   <Button
                     size="lg"
                     className="w-full"
                     onClick={() => setIsModalOpen(true)}
                     disabled={isBookNowDisabled}
                   >
-                    {hasDeparted
+                    {derived.hasDeparted
                       ? "Departure Passed"
-                      : isSoldOut
+                      : derived.isSoldOut
                       ? "Sold Out"
                       : "Book Now"}
                   </Button>
 
                   {isBookNowDisabled && (
                     <p className="mt-2 text-xs text-muted-foreground">
-                      {hasDeparted
+                      {derived.hasDeparted
                         ? "Bookings are closed for this trip."
                         : "This trip is currently sold out."}
                     </p>
@@ -328,73 +402,62 @@ const TicketDetails = () => {
                 </div>
               </div>
 
-              <Separator className="my-0" />
+              <Separator />
 
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-emerald-600" />
-                      <span className="text-xs text-muted-foreground">
-                        Verification
-                      </span>
-                    </div>
-                    <div>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                          ticket.verificationStatus === "approved"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-amber-50 text-amber-700"
-                        }`}
-                      >
-                        {ticket.verificationStatus}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
+              <CardContent className="space-y-4 pt-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
                     <span className="text-xs text-muted-foreground">
-                      Vendor
-                    </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {ticket.vendorName}
+                      Verification
                     </span>
                   </div>
+                  <StatusPill tone={verificationTone}>
+                    {derived.verificationStatus}
+                  </StatusPill>
+                </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      Vendor Email
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {ticket.vendorEmail}
-                    </span>
-                  </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">Vendor</span>
+                  <span className="text-sm font-medium text-foreground truncate">
+                    {derived.vendorName}
+                  </span>
+                </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      Admin Approved
-                    </span>
-                    <span className="text-xs font-medium text-foreground">
-                      {ticket.adminApprove ? "Yes" : "No"}
-                    </span>
-                  </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    Vendor Email
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {derived.vendorEmail}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    Admin Approved
+                  </span>
+                  <span className="text-xs font-medium text-foreground">
+                    {derived.adminApprove ? "Yes" : "No"}
+                  </span>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="mt-4 rounded-2xl bg-muted p-4 text-xs text-muted-foreground">
+            {/* Meta */}
+            <div className="rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
               <p>
                 Created:{" "}
-                {ticket.createdAt
+                {ticket?.createdAt && isValid(new Date(ticket.createdAt))
                   ? format(new Date(ticket.createdAt), "PPP p")
                   : "N/A"}
               </p>
-              {ticket.advertised && <p>Currently advertised ticket.</p>}
             </div>
           </div>
         </div>
       </div>
 
+      {/* Modal */}
       <BookNowModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -403,16 +466,5 @@ const TicketDetails = () => {
     </div>
   );
 };
-
-const MiniTimeBox = ({ label, value }) => (
-  <div className="flex flex-col items-center">
-    <div className="min-w-[2.2rem] rounded-md bg-foreground text-background px-2 py-1 text-center text-xs font-semibold">
-      {String(value).padStart(2, "0")}
-    </div>
-    <span className="mt-0.5 text-[9px] uppercase tracking-wide text-muted-foreground">
-      {label}
-    </span>
-  </div>
-);
 
 export default TicketDetails;

@@ -1,115 +1,150 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FaBusAlt, FaFacebookF, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { SiStripe, SiVisa, SiMastercard } from "react-icons/si";
 
 const Footer = () => {
+  const year = new Date().getFullYear();
+
+  const quickLinks = [
+    { to: "/", label: "Home" },
+    { to: "/all-tickets", label: "All Tickets" },
+    { to: "/contact", label: "Contact Us" },
+    { to: "/about", label: "About" },
+  ];
+
   return (
-    <footer className="bg-slate-900 text-gray-300 border-t">
-      {/* Top section */}
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <footer className="border-t border-border bg-card text-card-foreground">
+      {/* Top */}
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:gap-8 md:grid-cols-2 lg:grid-cols-4">
-          
-          {/* Column 1: Logo + Description */}
+          {/* Brand */}
           <div>
-            <div className="flex items-center mt-1 mb-3">
-              <FaBusAlt className="mr-2 h-7 w-7 text-indigo-500" />
-              <span className="text-xl font-bold text-white">TicketBari</span>
-            </div>
-            <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
-              Book bus, train, launch & flight tickets easily from one secure platform.
+            <Link to="/" className="inline-flex items-center gap-2">
+              <FaBusAlt className="h-6 w-6 text-primary" aria-hidden="true" />
+              <span className="text-lg font-semibold tracking-tight">
+                TicketBari
+              </span>
+            </Link>
+
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
+              Book bus, train, launch & flight tickets easily from one secure
+              platform.
             </p>
           </div>
 
-          {/* Column 2: Quick Links */}
-          <div className="lg:ml-17">
-            <h3 className="text-white text-sm font-semibold uppercase tracking-wide mb-4">
+          {/* Quick links */}
+          <nav aria-label="Footer navigation">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Quick Links
             </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="/" className="hover:text-indigo-400 transition-colors">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="/all-tickets" className="hover:text-indigo-400 transition-colors">
-                  All Tickets
-                </a>
-              </li>
-              <li>
-                <a href="/contact" className="hover:text-indigo-400 transition-colors">
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <a href="/about" className="hover:text-indigo-400 transition-colors">
-                  About
-                </a>
-              </li>
-            </ul>
-          </div>
 
-          {/* Column 3: Contact Info */}
+            <ul className="mt-4 space-y-2 text-sm">
+              {quickLinks.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className="text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card rounded-sm"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Contact */}
           <div>
-            <h3 className="text-white text-sm font-semibold uppercase tracking-wide mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Contact Info
             </h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center">
-                <FaEnvelope className="mr-2 h-4 w-4 text-indigo-400" />
-                <a
-                  href="mailto:support@ticketbari.com"
-                  className="hover:text-indigo-400 transition-colors break-all"
-                >
-                  support@ticketbari.com
-                </a>
-              </li>
-              <li className="flex items-center">
-                <FaPhoneAlt className="mr-2 h-4 w-4 text-indigo-400" />
-                <a
-                  href="tel:+8801234567890"
-                  className="hover:text-indigo-400 transition-colors"
-                >
-                  +880 1234-567-890
-                </a>
-              </li>
-              <li className="flex items-center">
-                <FaFacebookF className="mr-2 h-4 w-4 text-indigo-400" />
-                <a
-                  href="https://facebook.com/ticketbari"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-indigo-400 transition-colors"
-                >
-                  Facebook Page
-                </a>
-              </li>
-            </ul>
+
+            <address className="mt-4 not-italic">
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <FaEnvelope
+                    className="h-4 w-4 text-primary/90"
+                    aria-hidden="true"
+                  />
+                  <a
+                    href="mailto:support@ticketbari.com"
+                    className="break-all transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card rounded-sm"
+                  >
+                    support@ticketbari.com
+                  </a>
+                </li>
+
+                <li className="flex items-center gap-2">
+                  <FaPhoneAlt
+                    className="h-4 w-4 text-primary/90"
+                    aria-hidden="true"
+                  />
+                  <a
+                    href="tel:+8801234567890"
+                    className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card rounded-sm"
+                  >
+                    +880 1234-567-890
+                  </a>
+                </li>
+
+                <li className="flex items-center gap-2">
+                  <FaFacebookF
+                    className="h-4 w-4 text-primary/90"
+                    aria-hidden="true"
+                  />
+                  <a
+                    href="https://facebook.com/ticketbari"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card rounded-sm"
+                  >
+                    Facebook Page
+                  </a>
+                </li>
+              </ul>
+            </address>
           </div>
 
-          {/* Column 4: Payment Methods */}
+          {/* Payments */}
           <div>
-            <h3 className="text-white text-sm font-semibold uppercase tracking-wide mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Payment Methods
             </h3>
-            <p className="text-sm text-gray-400 mb-4">
+
+            <p className="mt-4 text-sm text-muted-foreground">
               Secure payments powered by trusted providers.
             </p>
-            <div className="flex items-center space-x-4 text-3xl *:border *:rounded-full">
-              <SiStripe className="text-indigo-400" title="Stripe" />
-              <SiVisa className="text-blue-400" title="Visa" />
-              <SiMastercard className="text-orange-400" title="Mastercard" />
+
+            <div className="mt-4 flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+                <SiStripe
+                  aria-label="Stripe"
+                  title="Stripe"
+                  className="text-2xl"
+                />
+              </span>
+
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+                <SiVisa aria-label="Visa" title="Visa" className="text-2xl" />
+              </span>
+
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+                <SiMastercard
+                  aria-label="Mastercard"
+                  title="Mastercard"
+                  className="text-2xl"
+                />
+              </span>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-slate-800">
+      {/* Bottom */}
+      <div className="border-t border-border bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-500 text-sm sm:text-base">
-            © 2025 TicketBari. All rights reserved.
+          <p className="text-center text-sm text-muted-foreground">
+            © {year} TicketBari. All rights reserved.
           </p>
         </div>
       </div>
